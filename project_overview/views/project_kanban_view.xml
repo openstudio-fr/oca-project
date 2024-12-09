@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+  <record id="view_project_kanban_inherit" model="ir.ui.view">
+    <field name="name">view.project.kanban.inherit.project.overview</field>
+    <field name="model">project.project</field>
+    <field name="inherit_id" ref="project.view_project_kanban" />
+    <field name="arch" type="xml">
+      <xpath
+                expr="//div[contains(@class, 'o_kanban_manage_reporting')]"
+                position="inside"
+            >
+        <div>
+          <div role="menuitem" groups="project.group_project_user">
+              <a name="action_project_overview" type="object">Project Overview</a>
+          </div>
+        </div>
+      </xpath>
+    </field>
+  </record>
+</odoo>

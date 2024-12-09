@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_overview.TimeByPeople" owl="1">
+        <div class="o_project_overview_people_time">
+            <h3>Temps par personne</h3>
+            <div class="o_project_overview_stat">
+                <a
+                    t-on-click="onClickBillableFixed"
+                    class="badge o_progress_billable_fixed"
+                >
+               Quantité fixe facturable
+                </a>
+                <a
+                    t-on-click="onClickBillableTime"
+                    class="badge o_progress_billable_time"
+                >
+                Temps facturable
+                </a>
+                <a
+                    t-on-click="onClickBillableManual"
+                    class="badge o_progress_billable_manual"
+                >
+                Facturation manuelle
+                </a>
+                <a
+                    t-on-click="onClickNonBillable"
+                    class="badge o_progress_non_billable"
+                >
+                Non facturable
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <t t-if='employees'>
+                            <t
+                                t-foreach="employees"
+                                t-as="employee"
+                                t-key="employee.employeeId"
+                            >
+                                <tr>
+                                    <td style="width: 15%">
+                                        <a
+                                            t-on-click="() => openEmployeeTimesheets(employee.employeeId)"
+                                        >
+                                            <t t-esc="employee.name" />
+                                        </a>
+                                    </td>
+                                    <td style="width: 10%">
+                                        <t t-esc="convertToHHMM(employee.total)" />
+                                    </td>
+                                    <td class="o_project_overview_people_time_progress">
+                                        <t
+                                            t-foreach="employee.invoiceDetails"
+                                            t-as="invoice"
+                                            t-key="invoice.invoiceType"
+                                        >
+                                            <div
+                                                t-if="invoice.total"
+                                                class="progress progress-bar"
+                                                t-att-class="'o_progress_' + invoice.invoiceType"
+                                                t-att-style="'width: ' + (invoice.total / maxTotal * 100) + '%'"
+                                                t-att-title="convertToHHMM(invoice.total)"
+                                            >
+                                            </div>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+</templates>

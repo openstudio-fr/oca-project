@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_overview.GlobalActions" owl="1">
+        <div class="o_project_overview_stat">
+            <button class="o_project_overview_button" t-on-click="openProject">
+                <i
+                    class="fa fa-fw fa-puzzle-piece"
+                    aria-label="Projet"
+                    title="Projet"
+                />
+                <span>Projet</span>
+            </button>
+            <button class="o_project_overview_button" t-on-click="openTimesheets">
+                <i
+                    class="fa fa-fw fa-calendar"
+                    aria-label="Feuilles de temps"
+                    title="Feuilles de temps"
+                />
+                <span>Feuilles de temps</span>
+            </button>
+            <button class="o_project_overview_button" t-on-click="openTaskList">
+                <i class="fa fa-fw fa-tasks" aria-label="Tâches" title="Tâches" />
+                <span>
+                    <t t-esc="taskCount" />&#160;Tâches
+                </span>
+            </button>
+            <button class="o_project_overview_button" t-on-click="openSaleOrder">
+                <i class="fa fa-fw fa-dollar" aria-label="Devis" title="Devis" />
+                <span>
+                    <t t-esc="saleOrderCount" />&#160;Devis
+                </span>
+            </button>
+        </div>
+    </t>
+</templates>

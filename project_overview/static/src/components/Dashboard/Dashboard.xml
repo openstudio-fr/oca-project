@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_overview.Dashboard" owl="1">
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th rowspan="6">
+                            <a t-on-click="onClickHoursButton">Heures</a>
+                        </th>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.hours.billable_time" />
+                        </td>
+                        <td>Feuilles de temps</td>
+                        <th rowspan="6">
+                            <a t-on-click="onClickRatesButton">Taux</a>
+                        </th>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.rates.billable_time" />&#160;%
+                        </td>
+                        <td>Feuilles de temps</td>
+                        <th rowspan="6">
+                            <a t-on-click="onClickProfitabilityButton">Rentabilité</a>
+                        </th>
+                        <td style='text-align:right'>
+                            <span>
+                                <t
+                                    t-esc="formatPriceAsCurrency(revenues.total.invoiced)"
+                                />
+                            </span>
+                        </td>
+                        <td>Facturé</td>
+                    </tr>
+                    <tr>
+                        <td
+                            t-if="state.data.hours.billable_fixed"
+                            style='text-align:right'
+                        >
+                            <t t-esc="state.data.hours.billable_fixed" />
+                        </td>
+                        <td>Fixe</td>
+                        <td
+                            t-if="state.data.hours.billable_fixed"
+                            style='text-align:right'
+                        >
+                            <t t-esc="state.data.rates.billable_fixed" />&#160;%
+                        </td>
+                        <td>Fixe</td>
+                        <td style='text-align:right'>
+                            <span>
+                                <t
+                                    t-esc="formatPriceAsCurrency(revenues.total.to_invoice)"
+                                />
+                            </span>
+                        </td>
+                        <td>À facturer</td>
+                    </tr>
+                    <tr>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.hours.non_billable" />
+                        </td>
+                        <td>
+                            <a>Non facturable</a>
+                        </td>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.rates.non_billable" />&#160;%
+                        </td>
+                        <td>Non facturable</td>
+                        <td style='text-align:right'>
+                            <span>
+                                <t t-esc="formatPriceAsCurrency(costs.total.billed)" />
+                            </span>
+                        </td>
+                        <td>
+                            Coût facturé
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.hours.billable_manual" />
+                        </td>
+                        <td>Facturation manuelle</td>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.rates.billable_manual" />&#160;%
+                        </td>
+                        <td>Facturation manuelle</td>
+ <td style='text-align:right'>
+                            <span>
+                                <t t-esc="formatPriceAsCurrency(costs.total.to_bill)" />
+                            </span>
+                        </td>
+                        <td>
+                            Coût à facturer
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align:right'>
+                            <t t-esc="state.data.totalHours" />
+                        </td>
+                        <td>
+                            <b>Total</b>
+                        </td>
+                        <td />
+                        <td />
+                       <td style='text-align:right'>
+                            <span>
+                                <t t-esc="formatPriceAsCurrency(profitabilityTotal)" />
+                            </span>
+                        </td>
+                        <td>
+                            <b>Total</b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</templates>

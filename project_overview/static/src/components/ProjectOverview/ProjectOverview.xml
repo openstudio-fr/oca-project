@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_overview.ProjectOverview" owl="1">
+        <div class="o_project_overview">
+            <t t-if="state.projectData">
+                <GlobalActions
+                    projectId="state.projectData.id"
+                    taskCount="state.projectData.task_count"
+                    saleOrderCount="state.projectData.sale_order_count"
+                />
+                <Dashboard
+                    projectId="state.projectData.id"
+                    invoiceTypeData="state.invoiceTypeData"
+                    profitabilityData="state.profitabilityData"
+                />
+                <TimeByPeople
+                    projectId="state.projectData.id"
+                    employeesData='state.employeesData'
+                />
+                <Timesheets />
+            </t>
+            <t t-else="">
+                <p>Chargement des données...</p>
+            </t>
+        </div>
+    </t>
+</templates>

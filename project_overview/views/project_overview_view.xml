@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="projet_project_view_form" model="ir.ui.view">
+        <field name="name">project.project.form.custom</field>
+        <field name="model">project.project</field>
+        <field name="arch" type="xml">
+            <form js_class='custom_form_view'>
+                <sheet>
+                    <field
+                        name="widget_field"
+                        widget="project_overview"
+                        nolabel="1"
+                        style="width:100%"
+                        context="{'default_project_id': id}"
+                    />
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

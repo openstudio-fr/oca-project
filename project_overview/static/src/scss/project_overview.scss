@@ -1,0 +1,74 @@
+.o_project_overview {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    a {
+        cursor: pointer;
+    }
+
+    .o_project_overview_stat {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .o_project_overview_people_time_progress {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .o_project_overview_button {
+        padding: 10px 15px;
+        background-color: #71639e;
+        color: #fff;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+
+        &:hover {
+            background-color: #605486;
+        }
+    }
+
+    .o_project_overview_people_time {
+        .o_progress_billable_time {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .o_progress_billable_fixed {
+            background-color: #5bc0de;
+            color: white;
+        }
+        .o_progress_non_billable {
+            background-color: gray;
+            color: white;
+        }
+        .o_progress_billable_manual {
+            background-color: #e99898;
+            color: white;
+        }
+
+        > .o_timesheet_plan_badge {
+            margin-bottom: 10px;
+            > .badge {
+                border: none;
+            }
+        }
+        .table {
+            margin-top: 15px;
+        }
+        .table > thead > tr > th,
+        .table > thead > tr > td,
+        .table > tbody > tr > th,
+        .table > tbody > tr > td {
+            border: none;
+            padding: 0px;
+        }
+    }
+}
