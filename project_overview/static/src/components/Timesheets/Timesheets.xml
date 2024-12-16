@@ -10,7 +10,7 @@
               <t t-foreach="state.data['columns']" t-as="colomn" t-key="colomn.id">
                 <th>
                   <span>
-                    <t t-esc="colomn.name"/>
+                    <t t-esc="colomn.name" />
                   </span>
                 </th>
               </t>
@@ -29,7 +29,10 @@
                   </t>
                   <t t-else="">
                     <td class="text-center">
-                      <span t-esc="convertToHHMM(data[field])" t-att-class="data[field] === 0 ?'text-muted' : ''"/>
+                      <span
+                                                t-esc="convertToHHMM(data[field])"
+                                                t-att-class="data[field] === 0 ?'text-muted' : ''"
+                                            />
                     </td>
                   </t>
                 </t>
@@ -45,7 +48,10 @@
                       </t>
                       <t t-else="">
                         <td class="text-center">
-                          <span t-esc="convertToHHMM(task[field])" t-att-class="task[field] === 0 ?'text-muted' : ''"/>
+                          <span
+                                                        t-esc="convertToHHMM(task[field])"
+                                                        t-att-class="task[field] === 0 ?'text-muted' : ''"
+                                                    />
                         </td>
                       </t>
                     </t>
@@ -61,7 +67,10 @@
                           </t>
                           <t t-else="">
                             <td class="text-center">
-                              <span t-esc="convertToHHMM(employee[field])" t-att-class="employee[field] === 0 ?'text-muted' : ''"/>
+                              <span
+                                                                t-esc="convertToHHMM(employee[field])"
+                                                                t-att-class="employee[field] === 0 ?'text-muted' : ''"
+                                                            />
                             </td>
                           </t>
                         </t>

@@ -3,15 +3,15 @@
 import {registry} from "@web/core/registry";
 import {ProjectOverviewComponent} from "../components/ProjectOverview/ProjectOverview";
 import {formView} from "@web/views/form/form_view";
-import { Timesheets } from "../components/Timesheets/Timesheets";
-import { CustomFormController } from "./custom_form_controller";
-import { CustomFormControlPanel } from "./custom_form_control_panel";
+import {Timesheets} from "../components/Timesheets/Timesheets";
+import {CustomFormController} from "./custom_form_controller";
+import {CustomFormControlPanel} from "./custom_form_control_panel";
 
 export const projectOverviewFormView = {
     ...formView,
     ControlPanel: CustomFormControlPanel,
     Controller: CustomFormController,
-    searchMenuTypes: ['filter', 'favorite'],
+    searchMenuTypes: ["filter", "favorite"],
     buttonTemplate: "project.CustomFormView.Buttons",
 };
 

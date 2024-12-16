@@ -1,10 +1,14 @@
-from odoo import _, fields, models, api
 from datetime import datetime, timedelta
+
+from odoo import _, api, fields, models
+
 
 class ProjectProject(models.Model):
     _inherit = "project.project"
 
-    order_ids = fields.One2many("sale.order", string="Sale Orders", compute="_compute_order_ids")
+    order_ids = fields.One2many(
+        "sale.order", string="Sale Orders", compute="_compute_order_ids"
+    )
     widget_field = fields.Char(string="Project Overview Widget")
     overview_data = fields.Json(compute="_compute_overview_data", store=False)
 
@@ -12,8 +16,6 @@ class ProjectProject(models.Model):
     def _compute_order_ids(self):
         for project in self:
             project.order_ids = project._fetch_sale_order_items().order_id
-
-
 
     @api.depends()
     def _compute_overview_data(self):
@@ -27,19 +29,17 @@ class ProjectProject(models.Model):
                 for i in range(2, -1, -1)
             ]
             end_months = [
-                (start_month.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+                (start_month.replace(day=1) + timedelta(days=31)).replace(day=1)
+                - timedelta(days=1)
                 for start_month in start_months
             ]
-            month_ids = [date.strftime('%b.').lower() for date in start_months]
+            month_ids = [date.strftime("%b.").lower() for date in start_months]
 
             # Colonnes
             columns = [
                 {"id": "name", "name": "Nom"},
                 {"id": "before", "name": "Avant"},
-                *[
-                    {"id": month_id, "name": month_id}
-                    for month_id in month_ids
-                ],
+                *[{"id": month_id, "name": month_id} for month_id in month_ids],
                 {"id": "done", "name": "Terminé"},
                 {"id": "sold", "name": "Vendu"},
                 {"id": "remaining", "name": "Restant"},
@@ -86,15 +86,19 @@ class ProjectProject(models.Model):
                 task_sold = 0.0
 
                 # Récupération des lignes analytiques
-                lines = self.env['account.analytic.line'].search([
-                    ('task_id', '=', task.id),
-                ])
+                lines = self.env["account.analytic.line"].search(
+                    [
+                        ("task_id", "=", task.id),
+                    ]
+                )
                 for line in lines:
                     line_date = line.date
                     if line_date < start_months[0]:
                         task_before += line.unit_amount
                     else:
-                        for idx, (start_date, end_date) in enumerate(zip(start_months, end_months)):
+                        for idx, (start_date, end_date) in enumerate(
+                            zip(start_months, end_months)
+                        ):
                             if start_date <= line_date <= end_date:
                                 month_id = month_ids[idx]
                                 task_by_month[month_id] += line.unit_amount
@@ -102,7 +106,9 @@ class ProjectProject(models.Model):
                     task_done += line.unit_amount
 
                 # Heures vendues (relation avec les lignes de commande)
-                sale_lines = self.env['sale.order.line'].search([('task_id', '=', task.id)])
+                sale_lines = self.env["sale.order.line"].search(
+                    [("task_id", "=", task.id)]
+                )
                 for sale_line in sale_lines:
                     task_sold += sale_line.product_uom_qty
 
@@ -125,7 +131,7 @@ class ProjectProject(models.Model):
                 total_sold += task_sold
 
                 # Ajouter les employés
-                employees = task.user_ids.mapped('employee_ids')
+                employees = task.user_ids.mapped("employee_ids")
                 for employee in employees:
                     employee_data = {
                         "name": employee.name,
@@ -354,14 +360,20 @@ class ProjectProject(models.Model):
 
     # Ouvre la popup de création de facture
     def action_create_invoice(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("sale.action_view_sale_advance_payment_inv")
-        so_ids = (self.sale_order_id | self.task_ids.sale_order_id).filtered(lambda so: so.invoice_status in ['to invoice', 'no']).ids
-        action['context'] = {
-            'active_id': so_ids[0] if len(so_ids) == 1 else False,
-            'active_ids': so_ids
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "sale.action_view_sale_advance_payment_inv"
+        )
+        so_ids = (
+            (self.sale_order_id | self.task_ids.sale_order_id)
+            .filtered(lambda so: so.invoice_status in ["to invoice", "no"])
+            .ids
+        )
+        action["context"] = {
+            "active_id": so_ids[0] if len(so_ids) == 1 else False,
+            "active_ids": so_ids,
         }
         if not self.has_any_so_to_invoice:
-            action['context']['default_advance_payment_method'] = 'percentage'
+            action["context"]["default_advance_payment_method"] = "percentage"
         return action
 
     # todo: optimisé pour faire qu'une requete, si employeeId
@@ -383,7 +395,7 @@ class ProjectProject(models.Model):
             filter_key: 1,
         }
         return action
-    
+
     def action_view_invoices(self):
         # ici il n'y a pas les factures drafs
         # todo: ajouter les filtres
@@ -398,21 +410,18 @@ class ProjectProject(models.Model):
         }
         return action
 
-
     # todo: action_create_sale_order
     # Ouvre la popup de création de bon de commande
     def action_create_sale_order(self):
         action = self.env["ir.actions.actions"]._for_xml_id("sale.action_orders")
-        view_form_id = self.env.ref('sale.view_order_form').id
-        action['context'] = {
-            'views': [(view_form_id, 'form')],
-            'view_mode': 'form',
-            'active_id': self.id,
-            'res_id': self.id,
+        view_form_id = self.env.ref("sale.view_order_form").id
+        action["context"] = {
+            "views": [(view_form_id, "form")],
+            "view_mode": "form",
+            "active_id": self.id,
+            "res_id": self.id,
         }
         return action
-
-
 
     # def get_overview_data(self):
     #     self.ensure_one()

@@ -11,7 +11,7 @@ export class CustomFormControlPanel extends ControlPanel {
         if (searchItems) {
             const tempSearchItems = {...searchItems};
             const filtersToKeep = ["start_date", "end_date"];
-            // sale_order_id 
+            // sale_order_id
             for (const key in tempSearchItems) {
                 if (
                     tempSearchItems[key] &&
@@ -23,7 +23,7 @@ export class CustomFormControlPanel extends ControlPanel {
             }
 
             // console.log(tempSearchItems);
-            this.env.searchModel.searchItems = []
+            this.env.searchModel.searchItems = [];
             // this.env.searchModel.searchItems = tempSearchItems;
         }
 

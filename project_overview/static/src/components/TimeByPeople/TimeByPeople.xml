@@ -6,27 +6,27 @@
             <t t-if='employees and employeesLength > 0'>
             <div class="o_project_overview_stat">
                 <button
-                    t-on-click="() => onClickTimesheet('billable_fixed')"
-                    class="o_progress_badge o_progress_billable_fixed"
-                >
+                        t-on-click="() => onClickTimesheet('billable_fixed')"
+                        class="o_progress_badge o_progress_billable_fixed"
+                    >
                Billable fixed
                 </button>
                 <button
-                    t-on-click="() => onClickTimesheet('billable_time')"
-                    class="o_progress_badge o_progress_billable_time"
-                >
+                        t-on-click="() => onClickTimesheet('billable_time')"
+                        class="o_progress_badge o_progress_billable_time"
+                    >
                 Billable time
                 </button>
                 <button
-                    t-on-click="() => onClickTimesheet('billable_manual')"
-                    class="o_progress_badge o_progress_billable_manual"
-                >
+                        t-on-click="() => onClickTimesheet('billable_manual')"
+                        class="o_progress_badge o_progress_billable_manual"
+                    >
                 Billable manual
                 </button>
                 <button
-                    t-on-click="() => onClickTimesheet('non_billable')"
-                    class="o_progress_badge o_progress_non_billable"
-                >
+                        t-on-click="() => onClickTimesheet('non_billable')"
+                        class="o_progress_badge o_progress_non_billable"
+                    >
                 Non billable
                 </button>
             </div>
@@ -34,15 +34,15 @@
                 <table class="table">
                     <tbody>
                         <t
-                            t-foreach="employees"
-                            t-as="employee"
-                            t-key="employee.employeeId"
-                        >
+                                t-foreach="employees"
+                                t-as="employee"
+                                t-key="employee.employeeId"
+                            >
                             <tr>
                                 <td style="width: 15%">
                                     <a
-                                        t-on-click="() => openEmployeeTimesheets(employee.employeeId)"
-                                    >
+                                            t-on-click="() => openEmployeeTimesheets(employee.employeeId)"
+                                        >
                                         <t t-esc="employee.name" />
                                     </a>
                                 </td>
@@ -51,18 +51,18 @@
                                 </td>
                                 <td class="o_project_overview_people_time_progress">
                                     <t
-                                        t-foreach="employee.invoiceDetails"
-                                        t-as="invoice"
-                                        t-key="invoice.invoiceType"
-                                    >
-                                        <div
-                                            t-if="invoice.total"
-                                            class="progress progress-bar"
-                                            t-att-class="'o_progress_' + invoice.invoiceType"
-                                            t-att-style="'width: ' + (invoice.total / maxTotal * 100) + '%'"
-                                            t-att-title="convertToHHMM(invoice.total)"
-                                            t-on-click="() => onClickProgressBar(employee.employeeId, invoice.invoiceType)"
+                                            t-foreach="employee.invoiceDetails"
+                                            t-as="invoice"
+                                            t-key="invoice.invoiceType"
                                         >
+                                        <div
+                                                t-if="invoice.total"
+                                                class="progress progress-bar"
+                                                t-att-class="'o_progress_' + invoice.invoiceType"
+                                                t-att-style="'width: ' + (invoice.total / maxTotal * 100) + '%'"
+                                                t-att-title="convertToHHMM(invoice.total)"
+                                                t-on-click="() => onClickProgressBar(employee.employeeId, invoice.invoiceType)"
+                                            >
                                         </div>
                                     </t>
                                 </td>

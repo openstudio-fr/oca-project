@@ -24,14 +24,26 @@
                     <t t-esc="taskCount" />&#160;Tasks
                 </span>
             </button>
-            <button t-if="saleOrderCount !== 0" t-on-click="openSaleOrder" class="o_project_overview_button">
-                <i class="fa fa-fw fa-dollar" aria-label="Sales Orders" title="Sales Orders" />
+            <button
+                t-if="saleOrderCount !== 0"
+                t-on-click="openSaleOrder"
+                class="o_project_overview_button"
+            >
+                <i
+                    class="fa fa-fw fa-dollar"
+                    aria-label="Sales Orders"
+                    title="Sales Orders"
+                />
                 <span>
                     <t t-esc="saleOrderCount" />&#160;Sales Orders
                 </span>
             </button>
             <button class="o_project_overview_button" t-on-click="openInvoices">
-                <i class="fa fa-fw fa-pencil-square-o" aria-label="Invoices" title="Invoices" />
+                <i
+                    class="fa fa-fw fa-pencil-square-o"
+                    aria-label="Invoices"
+                    title="Invoices"
+                />
                 <span>
                     &#160;Invoices
                 </span>

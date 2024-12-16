@@ -45,7 +45,6 @@ export class ProjectOverviewComponent extends Component {
             this.loadInvoiceTypeData();
             this.loadEmployeesData();
             this.loadProfitabilityData();
-
         });
     }
 
@@ -82,7 +81,7 @@ export class ProjectOverviewComponent extends Component {
                     "search_read",
                     [[["id", "=", projectId]], [...Object.keys(fields)]]
                 );
-                console.log(projectData[0])
+                console.log(projectData[0]);
                 this.state.projectData = projectData[0];
             } catch (error) {
                 this.notification.add("Une erreur est survenue : loadProjectData", {
@@ -189,12 +188,10 @@ export class ProjectOverviewComponent extends Component {
         if (projectId) {
             try {
                 // const fields = await this.orm.call("project.project", 'fields_get');
-                const data = await this.orm.call(
-                    "project.project",
-                    "get_panel_data",
-                    [[projectId]],
-                );
-                console.log(data)
+                const data = await this.orm.call("project.project", "get_panel_data", [
+                    [projectId],
+                ]);
+                console.log(data);
                 this.state.profitabilityData = data.profitability_items;
             } catch (error) {
                 this.notification.add(error.message, {type: "danger"});
@@ -206,7 +203,6 @@ export class ProjectOverviewComponent extends Component {
         }
     }
 }
-
 
 // {context: filters}
 

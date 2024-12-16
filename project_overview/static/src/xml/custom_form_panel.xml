@@ -1,11 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="project.CustomFormView.Buttons" owl="1">
-        <div class="o_cp_buttons" role="toolbar" aria-label="Main actions" t-ref="cpButtons">
-            <button t-if="state.showInvoiceButton" type="button" class="btn btn-primary o_form_button_save" data-hotkey="s" t-on-click.stop="() => this.createInvoice()">
+        <div
+            class="o_cp_buttons"
+            role="toolbar"
+            aria-label="Main actions"
+            t-ref="cpButtons"
+        >
+            <button
+                t-if="state.showInvoiceButton"
+                type="button"
+                class="btn btn-primary o_form_button_save"
+                data-hotkey="s"
+                t-on-click.stop="() => this.createInvoice()"
+            >
                 Create Invoice
             </button>
-            <button t-if="state.showSaleOrderButton" type="button" class="btn btn-primary o_form_button_save" data-hotkey="s" t-on-click.stop="() => this.createSaleOrder()">
+            <button
+                t-if="state.showSaleOrderButton"
+                type="button"
+                class="btn btn-primary o_form_button_save"
+                data-hotkey="s"
+                t-on-click.stop="() => this.createSaleOrder()"
+            >
                 Créer un bon de commande
             </button>
         </div>

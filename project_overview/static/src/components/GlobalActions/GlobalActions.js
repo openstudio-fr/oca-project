@@ -10,7 +10,6 @@ export class GlobalActions extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-
     }
 
     // Permet d'obtenir le nombre de tâches

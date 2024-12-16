@@ -4,18 +4,34 @@
         <field name="name">project.project.form.custom</field>
         <field name="model">project.project</field>
         <field name="arch" type="xml">
-            <form js_class='project_overview_form_view' create="false" edit="false" delete="false" duplicate="false">
+            <form
+                js_class='project_overview_form_view'
+                create="false"
+                edit="false"
+                delete="false"
+                duplicate="false"
+            >
                 <sheet>
-                    <field name="widget_field" widget="project_overview" nolabel="1" style="width:100%" context="{'default_project_id': id,  'additional_info': 'some_value', 'user_filters': user.filters}" />
-                    <field name="overview_data" widget="project_timesheets" nolabel="1" style="width:100%" context="{'default_project_id': id}" />
+                    <field
+                        name="widget_field"
+                        widget="project_overview"
+                        nolabel="1"
+                        style="width:100%"
+                        context="{'default_project_id': id,  'additional_info': 'some_value', 'user_filters': user.filters}"
+                    />
+                    <field
+                        name="overview_data"
+                        widget="project_timesheets"
+                        nolabel="1"
+                        style="width:100%"
+                        context="{'default_project_id': id}"
+                    />
                 </sheet>
             </form>
         </field>
     </record>
 </odoo>
-
-
-                <!-- <header>
+<!-- <header>
                     <div class="o_form_statusbar">
                         <div class="o_statusbar_buttons">
                             <p>Ici</p>

@@ -67,12 +67,12 @@ export class TimeByPeople extends Component {
                 type: "danger",
             });
         }
-    }
+    };
 
     // Action au clic de la barre de progression
-    onClickProgressBar = async (employeeId,invoiceType) => {
+    onClickProgressBar = async (employeeId, invoiceType) => {
         const projectId = this.props.projectId;
-        if(employeeId && invoiceType && projectId){
+        if (employeeId && invoiceType && projectId) {
             try {
                 const action = await this.orm.call(
                     "project.project",
@@ -86,7 +86,7 @@ export class TimeByPeople extends Component {
                 });
             }
         }
-    }
+    };
 
     // Action qui ouvre la feuille de temps d'un employé
     openEmployeeTimesheets = async (employeeId) => {

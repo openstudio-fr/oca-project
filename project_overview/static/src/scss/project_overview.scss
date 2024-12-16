@@ -6,7 +6,7 @@
     a {
         cursor: pointer;
         font-weight: 600;
-        color: #5a4f7f !important; 
+        color: #5a4f7f !important;
     }
 
     .o_project_overview_stat {
@@ -41,17 +41,17 @@
 
     .o_project_overview_people_time {
         .o_progress_badge {
-            border:none;
+            border: none;
             border-radius: 50px;
             font-size: 11px;
         }
         .o_progress_billable_time {
             background-color: #f0ad4e;
-            color: white ;
+            color: white;
         }
         .o_progress_billable_fixed {
             background-color: #5bc0de;
-            color: white ;
+            color: white;
         }
         .o_progress_non_billable {
             background-color: gray;
@@ -84,8 +84,8 @@
 .o_project_overview_timesheets {
     a {
         cursor: pointer;
-        font-weight: 600;     
-        color: #5a4f7f !important; 
+        font-weight: 600;
+        color: #5a4f7f !important;
     }
 
     th {
