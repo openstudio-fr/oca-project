@@ -1,128 +1,82 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
   <t t-name="project_overview.Timesheets" owl="1">
-    <div>
-      <h3 name="table_plan_title">Feuilles de temps</h3>
-      <div class="table-responsive">
+    <div class="o_project_overview_timesheets">
+      <h3 name="table_plan_title">Timesheets</h3>
+      <t t-if="state.data and state.ids">
         <table class="table">
           <thead>
             <tr>
-              <th>
-                <span>Nom</span>
-              </th>
-              <th>
-                <span>Avant</span>
-              </th>
-              <th>
-                <span>sept.</span>
-              </th>
-              <th>
-                <span>oct.</span>
-              </th>
-              <th>
-                <span>nov.</span>
-              </th>
-              <th class="o_right_bordered">
-                <span>Terminé</span>
-              </th>
-              <th>
-                <span>Vendu</span>
-              </th>
-              <th>
-                <span>Restant</span>
-              </th>
+              <t t-foreach="state.data['columns']" t-as="colomn" t-key="colomn.id">
+                <th>
+                  <span>
+                    <t t-esc="colomn.name"/>
+                  </span>
+                </th>
+              </t>
             </tr>
           </thead>
           <tbody>
-            <!-- Boucle sur la liste des employés avec t-key -->
-            <t t-foreach="employees" t-as="employee" t-key="employee.name">
-              <tr class="o_timesheet_forecast_hr_employee">
-                <td>
-                  <span t-esc="employee.name" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.before" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.sept" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.oct" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.nov" />
-                </td>
-                <td class="o_right_bordered">
-                  <span t-esc="employee.done" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.sold" />
-                </td>
-                <td class="text-center">
-                  <span t-esc="employee.remaining" />
-                </td>
+            <t t-foreach="state.data['content']" t-as="data" t-key="data.name">
+              <tr>
+                <t t-foreach="state.ids" t-as="field" t-key="field">
+                  <t t-if="field === 'name'">
+                    <td style="'padding-left: 0px ;'">
+                      <a t-on-click="() => openSaleOrder(data.id)">
+                        <span t-esc="data[field]" />
+                      </a>
+                    </td>
+                  </t>
+                  <t t-else="">
+                    <td class="text-center">
+                      <span t-esc="convertToHHMM(data[field])" t-att-class="data[field] === 0 ?'text-muted' : ''"/>
+                    </td>
+                  </t>
+                </t>
               </tr>
+              <t t-if="data.tasks">
+                <t t-foreach="data.tasks" t-as="task" t-key='task.name'>
+                  <tr>
+                    <t t-foreach="state.ids" t-as="field" t-key="field">
+                      <t t-if="field === 'name'">
+                        <td style="padding-left: 30px ;">
+                          <span t-esc="task[field]" />
+                        </td>
+                      </t>
+                      <t t-else="">
+                        <td class="text-center">
+                          <span t-esc="convertToHHMM(task[field])" t-att-class="task[field] === 0 ?'text-muted' : ''"/>
+                        </td>
+                      </t>
+                    </t>
+                  </tr>
+                  <t t-if="task.employees">
+                    <t t-foreach="task.employees" t-as="employee" t-key='employee.name'>
+                      <tr>
+                        <t t-foreach="state.ids" t-as="field" t-key="field">
+                          <t t-if="field === 'name'">
+                            <td style="padding-left: 60px ;">
+                              <span t-esc="employee[field]" />
+                            </td>
+                          </t>
+                          <t t-else="">
+                            <td class="text-center">
+                              <span t-esc="convertToHHMM(employee[field])" t-att-class="employee[field] === 0 ?'text-muted' : ''"/>
+                            </td>
+                          </t>
+                        </t>
+                      </tr>
+                    </t>
+                  </t>
+                </t>
+              </t>
             </t>
           </tbody>
         </table>
-      </div>
+      </t>
+      <t t-else="">
+        <p>Loading data...</p>
+      </t>
     </div>
   </t>
-
 </templates>
-<!-- <table class="table">
-            <thead>
-                <tr>
-                    <t t-foreach="timesheet_forecast_table['header']" t-as="header_val" t-key="header_val['label']">
-                        <th t-att-class="'o_right_bordered' if header_val_index in [5,10] else ''">
-                            <span t-att-title="header_val['tooltip']"><t t-esc="header_val['label']"/></span>
-                        </th>
-                    </t>
-                </tr>
-            </thead>
-            <tbody>
-                <t t-set="row_is_milestone" t-value="False"/>
-                <t t-foreach="timesheet_forecast_table['rows']" t-as="row" t-key="row[0].get('type')">
-                    <t t-set="row_type" t-value="row[0].get('type')"/>
-                    <t t-if="row_type == 'sale_order_line'">
-                        <t t-set="row_is_milestone" t-value="row[0].get('is_milestone')"/>
-                    </t>
-                    <tr t-att-class="'o_timesheet_forecast_' + row_type">
-                        <t t-foreach="row" t-as="row_value" t-key="row_value['res_id']">
-                            <td t-att-class="'o_right_bordered' if row_value_index in [5,10] else '' + ' text-center' if row_value_index != 0 else ''">
-                                <t t-if="row_value_index == 0">
-                                    <t t-if="row_type == 'sale_order'">
-                                        <a type="action" t-att-data-model="row_value['res_model']" t-att-data-res-id="row_value['res_id']" t-att-class="'o_timesheet_plan_redirect' if row_value['res_id'] else ''">
-                                            <t t-esc="row_value.get('label')"/>
-                                        </a>
-                                    </t>
-                                    <t t-if="row_type != 'sale_order'">
-                                        <t t-if="not row_is_milestone">
-                                            <span><t t-esc="row_value.get('label')"/></span>
-                                        </t>
-                                          <t t-if="row_is_milestone">
-                                            <span><i><t t-esc="row_value.get('label')"/></i></span>
-                                        </t>
-                                    </t>
-                                </t>
-                                <t t-if="row_value_index != 0">
-                                    <t t-if="row_value_index &lt; len(row)-2">
-                                        <t t-if="row_is_milestone">
-                                            <i t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></i>
-                                        </t>
-                                        <t t-else="">
-                                            <span t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></span>
-                                        </t>
-                                    </t>
-                                    <t t-else="">
-                                        <t t-if="not row_is_milestone and not row[0].get('type') == 'hr_employee'">
-                                            <span t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></span>
-                                        </t>
-                                    </t>
-                                </t>
-                            </td>
-                        </t>
-                    </tr>
-                </t>
-            </tbody>
-        </table> -->

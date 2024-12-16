@@ -5,31 +5,39 @@
             <button class="o_project_overview_button" t-on-click="openProject">
                 <i
                     class="fa fa-fw fa-puzzle-piece"
-                    aria-label="Projet"
-                    title="Projet"
+                    aria-label="Project"
+                    title="Project"
                 />
-                <span>Projet</span>
+                <span>Project</span>
             </button>
             <button class="o_project_overview_button" t-on-click="openTimesheets">
                 <i
                     class="fa fa-fw fa-calendar"
-                    aria-label="Feuilles de temps"
-                    title="Feuilles de temps"
+                    aria-label="Timesheets"
+                    title="Timesheets"
                 />
-                <span>Feuilles de temps</span>
+                <span>Timesheets</span>
             </button>
             <button class="o_project_overview_button" t-on-click="openTaskList">
-                <i class="fa fa-fw fa-tasks" aria-label="Tâches" title="Tâches" />
+                <i class="fa fa-fw fa-tasks" aria-label="Tasks" title="Tasks" />
                 <span>
-                    <t t-esc="taskCount" />&#160;Tâches
+                    <t t-esc="taskCount" />&#160;Tasks
                 </span>
             </button>
-            <button class="o_project_overview_button" t-on-click="openSaleOrder">
-                <i class="fa fa-fw fa-dollar" aria-label="Devis" title="Devis" />
+            <button t-if="saleOrderCount !== 0" t-on-click="openSaleOrder" class="o_project_overview_button">
+                <i class="fa fa-fw fa-dollar" aria-label="Sales Orders" title="Sales Orders" />
                 <span>
-                    <t t-esc="saleOrderCount" />&#160;Devis
+                    <t t-esc="saleOrderCount" />&#160;Sales Orders
                 </span>
             </button>
+            <button class="o_project_overview_button" t-on-click="openInvoices">
+                <i class="fa fa-fw fa-pencil-square-o" aria-label="Invoices" title="Invoices" />
+                <span>
+                    &#160;Invoices
+                </span>
+            </button>
+            <!-- todo: nb de facture -->
+            <!-- todo: ajouter des conditions pour afficher le btn facture -->
         </div>
     </t>
 </templates>

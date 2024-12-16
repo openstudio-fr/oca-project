@@ -1,59 +1,66 @@
 /** @odoo-module **/
 
-import {Component, useState, onWillStart} from "@odoo/owl";
+import {Component} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 
 export class Dashboard extends Component {
     setup() {
         super.setup();
-
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-
-        this.state = useState({
-            data: null,
-        });
-
-        onWillStart(() => {
-            this.calculateData();
-        });
     }
 
     // Permet d'obtenir les informations de rentabilité - les revenues
     get revenues() {
-        return this.props.profitabilityData?.revenues;
+        return (
+            this.props.profitabilityData?.revenues ?? {
+                data: [],
+                total: {
+                    invoiced: 0,
+                    to_invoice: 0,
+                },
+            }
+        );
     }
 
     // Permet d'obtenir les informations de rentabilité - les couts
     get costs() {
-        return this.props.profitabilityData?.costs;
+        return (
+            this.props.profitabilityData?.costs ?? {
+                data: [],
+                total: {
+                    billed: 0,
+                    to_bill: 0,
+                },
+            }
+        );
     }
 
     // Calcul du total de la rentabilité
     get profitabilityTotal() {
-        const revenues = this.props.profitabilityData?.revenues;
-        const costs = this.props.profitabilityData?.costs;
+        const revenues = this.props?.profitabilityData?.revenues;
+        const costs = this.props?.profitabilityData?.costs;
 
-        const totalRevenues = revenues.total.invoiced + revenues.total.to_invoice;
-        const totalCosts = costs.total.billed + costs.total.to_bill;
+        const totalRevenues = revenues
+            ? revenues.total.invoiced + revenues.total.to_invoice
+            : 0;
+        const totalCosts = costs ? costs.total.billed + costs.total.to_bill : 0;
 
         return totalRevenues + totalCosts;
     }
 
-    // Formatter l'affichage de la devise
-    formatPriceAsCurrency(price) {
-        return price.toLocaleString("fr-FR", {
-            style: "currency",
-            currency: "EUR",
-        });
-    }
-
+    // todo: à optimiser car bcp de rendu (state mais pb de rendu avec filtres)
     // Permet d'obtenir les information sur les heures et les taux
-    calculateData() {
+    get allData() {
         const invoiceTypeData = this.props.invoiceTypeData;
         const data = {
-            hours: {},
+            hours: {
+                billable_time: 0,
+                billable_fixed: 0,
+                non_billable: 0,
+                billable_manual: 0,
+            },
             rates: {},
             totalHours: 0,
         };
@@ -81,13 +88,25 @@ export class Dashboard extends Component {
             const typeHours = data.hours[invoiceType];
             data.hours[invoiceType] = convertToHHMM(typeHours);
 
-            const rate = (typeHours / data.totalHours) * 100;
+            let rate;
+            if (typeHours === 0 && data.totalHours === 0) {
+                rate = 0;
+            } else rate = (typeHours / data.totalHours) * 100;
+
             const floatRate = rate.toFixed(2);
             data.rates[invoiceType] = floatRate;
         });
 
         data.totalHours = convertToHHMM(data.totalHours);
-        this.state.data = data;
+        return data;
+    }
+
+    // Formatter l'affichage de la devise
+    formatPriceAsCurrency(price) {
+        return price.toLocaleString("fr-FR", {
+            style: "currency",
+            currency: "EUR",
+        });
     }
 
     // Action du bouton "Heures"

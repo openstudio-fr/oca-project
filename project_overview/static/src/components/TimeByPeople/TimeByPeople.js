@@ -22,6 +22,10 @@ export class TimeByPeople extends Component {
         return this.props.employeesData;
     }
 
+    get employeesLength() {
+        return this.props.employeesData.length;
+    }
+
     // Permet d'obtenir le temps maximum qu'un employé à travailler sur le projet
     get maxTotal() {
         const allEmployees = this.props.employeesData;
@@ -43,14 +47,14 @@ export class TimeByPeople extends Component {
     }
 
     // Fonction générique pour les boutons d'actions qui ouvre une feuille de temps avec un filtre spécifique
-    async onClickTimesheet(filterType) {
+    onClickTimesheet = async (filterType) => {
         const projectId = this.props.projectId;
-        if (projectId) {
+        if (projectId && filterType) {
             try {
                 const action = await this.orm.call(
                     "project.project",
-                    `action_project_timesheets_${filterType}`,
-                    [projectId]
+                    `action_project_timesheets_with_filters`,
+                    [projectId, filterType]
                 );
                 this.action.doAction(action);
             } catch (error) {
@@ -65,24 +69,23 @@ export class TimeByPeople extends Component {
         }
     }
 
-    // Action du bouton "Quantité fixe facturable"
-    async onClickBillableFixed() {
-        await this.onClickTimesheet("billable_fixed");
-    }
-
-    // Action du bouton "Temps facturable"
-    async onClickBillableTime() {
-        await this.onClickTimesheet("billable_time");
-    }
-
-    // Action du bouton "Non facturable"
-    async onClickNonBillable() {
-        await this.onClickTimesheet("non_billable");
-    }
-
-    // Action du bouton "Temps manuel facturable"
-    async onClickBillableManual() {
-        await this.onClickTimesheet("billable_manual");
+    // Action au clic de la barre de progression
+    onClickProgressBar = async (employeeId,invoiceType) => {
+        const projectId = this.props.projectId;
+        if(employeeId && invoiceType && projectId){
+            try {
+                const action = await this.orm.call(
+                    "project.project",
+                    `action_project_timesheets_with_all_filters`,
+                    [projectId, employeeId, invoiceType]
+                );
+                this.action.doAction(action);
+            } catch (error) {
+                this.notification.add("Une erreur est survenue : onClickProgressBar", {
+                    type: "danger",
+                });
+            }
+        }
     }
 
     // Action qui ouvre la feuille de temps d'un employé

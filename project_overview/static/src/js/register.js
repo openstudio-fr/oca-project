@@ -3,29 +3,22 @@
 import {registry} from "@web/core/registry";
 import {ProjectOverviewComponent} from "../components/ProjectOverview/ProjectOverview";
 import {formView} from "@web/views/form/form_view";
-import {CustomFormController} from "./custom_form/custom_form_controller";
-import {CustomFormRenderer} from "./custom_form/custom_form_renderer";
-import {ProjectControlPanel} from "./custom_form/custom_form_panel";
+import { Timesheets } from "../components/Timesheets/Timesheets";
+import { CustomFormController } from "./custom_form_controller";
+import { CustomFormControlPanel } from "./custom_form_control_panel";
 
+export const projectOverviewFormView = {
+    ...formView,
+    ControlPanel: CustomFormControlPanel,
+    Controller: CustomFormController,
+    searchMenuTypes: ['filter', 'favorite'],
+    buttonTemplate: "project.CustomFormView.Buttons",
+};
+
+// console.log(formView)
 registry.category("fields").add("project_overview", ProjectOverviewComponent);
-
+registry.category("fields").add("project_timesheets", Timesheets);
+registry.category("views").add("project_overview_form_view", projectOverviewFormView);
 registry
     .category("views")
     .add("ProjectOverview.ProjectOverviewComponent", ProjectOverviewComponent);
-
-export const customFormView = {
-    ...formView,
-    withSearchBar: true,
-    searchMenuTypes: ["filter", "favorite"],
-    // Renderer: CustomFormRenderer,
-    // Controller: CustomFormController,
-    // ControlPanel: ProjectControlPanel,
-};
-
-registry.category("views").add("custom_form_view", customFormView);
-
-// var ProjectOverview = qweb.View.extend({
-//     withSearchBar: true,
-//     searchMenuTypes: [],
-// });
-// viewRegistry.add('project_overview_qweb', ProjectOverview);

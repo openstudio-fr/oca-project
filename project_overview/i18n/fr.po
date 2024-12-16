@@ -1,0 +1,262 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* project_overview
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-12 15:28+0000\n"
+"PO-Revision-Date: 2024-12-12 15:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#, python-format
+msgid "%(name)s's Invoices"
+msgstr "Factures de %(name)"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#, python-format
+msgid "%(name)s's Project"
+msgstr "Projet de %(name)"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#, python-format
+msgid "%(name)s's Sales Order"
+msgstr "Bons de commande de %(name)"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#, python-format
+msgid "%(name)s's Tasks"
+msgstr "Tâches de %(name)"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#: code:addons/project_overview/models/project_project.py:0
+#, python-format
+msgid "%(name)s's Timesheets"
+msgstr "Feuilles de temps de %(name)"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#, python-format
+msgid "Sales Orders"
+msgstr "Bons de commande"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/ProjectOverview/ProjectOverview.xml:0
+#: code:addons/project_overview/static/src/components/Timesheets/Timesheets.xml:0
+#, python-format
+msgid "Loading data..."
+msgstr "Chargement des données..."
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Re-invoiced costs"
+msgstr "Coût facturé"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Costs"
+msgstr "Coût à facturer"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/xml/custom_form_panel.xml:0
+#, python-format
+msgid "Create Invoice"
+msgstr "Créer une facture"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "Billable manual"
+msgstr "Facturation manuelle"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#, python-format
+msgid "Invoices"
+msgstr "Factures"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Invoiced"
+msgstr "Facturé"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/Timesheets/Timesheets.xml:0
+#, python-format
+msgid "Timesheets"
+msgstr "Feuilles de temps"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Fixed"
+msgstr "Fixe"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Hours"
+msgstr "Heures"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "There is no timesheet at this time."
+msgstr "Il n’y a aucune feuille de temps pour le moment."
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/xml/custom_form_panel.xml:0
+#, python-format
+msgid "Main actions"
+msgstr "Actions principales"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "Non billable"
+msgstr "Non facturable"
+
+#. module: project_overview
+#: model:ir.model,name:project_overview.model_project_project
+msgid "Project"
+msgstr "Projet"
+
+#. module: project_overview
+#. odoo-python
+#: code:addons/project_overview/models/project_project.py:0
+#: model:ir.actions.act_window,name:project_overview.action_project_overview
+#: model:ir.ui.menu,name:project_overview.menu_project_overview
+#: model_terms:ir.ui.view,arch_db:project_overview.view_project_kanban_inherit
+#, python-format
+msgid "Project Overview"
+msgstr "Vue d'ensemble"
+
+#. module: project_overview
+#: model:ir.model.fields,field_description:project_overview.field_project_project__widget_field
+msgid "Project Overview Widget"
+msgstr "Widget de la vue d'ensemble"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#, python-format
+msgid "Project"
+msgstr "Projet"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "Billable fixed"
+msgstr "Quantité fixe facturable"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Profitability"
+msgstr "Rentabilité"
+
+#. module: project_overview
+#: model:ir.model.fields,field_description:project_overview.field_project_project__order_ids
+msgid "Sale Orders"
+msgstr "Bons de commande"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Rates"
+msgstr "Taux"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "Billable time"
+msgstr "Temps facturable"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#, python-format
+msgid "Time by people"
+msgstr "Temps par personne"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "Total"
+msgstr "Total"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#: code:addons/project_overview/static/src/components/GlobalActions/GlobalActions.xml:0
+#, python-format
+msgid "Tasks"
+msgstr "Tâches"
+
+#. module: project_overview
+#. odoo-javascript
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
+#, python-format
+msgid "To invoice"
+msgstr "À facturer"

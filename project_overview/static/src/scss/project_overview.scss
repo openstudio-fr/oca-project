@@ -5,6 +5,8 @@
 
     a {
         cursor: pointer;
+        font-weight: 600;
+        color: #5a4f7f !important; 
     }
 
     .o_project_overview_stat {
@@ -12,6 +14,7 @@
         justify-content: flex-end;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
     }
 
     .o_project_overview_people_time_progress {
@@ -37,13 +40,18 @@
     }
 
     .o_project_overview_people_time {
+        .o_progress_badge {
+            border:none;
+            border-radius: 50px;
+            font-size: 11px;
+        }
         .o_progress_billable_time {
             background-color: #f0ad4e;
-            color: white;
+            color: white ;
         }
         .o_progress_billable_fixed {
             background-color: #5bc0de;
-            color: white;
+            color: white ;
         }
         .o_progress_non_billable {
             background-color: gray;
@@ -71,4 +79,33 @@
             padding: 0px;
         }
     }
+}
+
+.o_project_overview_timesheets {
+    a {
+        cursor: pointer;
+        font-weight: 600;     
+        color: #5a4f7f !important; 
+    }
+
+    th {
+        text-align: center;
+        vertical-align: top;
+    }
+
+    th:nth-last-child(3),
+    td:nth-last-child(3) {
+        border-right: 2px solid #5a4f7f;
+    }
+
+    .text-muted {
+        color: #adb5bd !important;
+    }
+}
+
+.o_cp_buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }

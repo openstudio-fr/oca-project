@@ -10,6 +10,7 @@ export class GlobalActions extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+
     }
 
     // Permet d'obtenir le nombre de tâches
@@ -113,6 +114,37 @@ export class GlobalActions extends Component {
             });
         }
     }
+
+    // Action du bouton "Facture"
+    async openInvoices() {
+        const projectId = this.props.projectId;
+        if (projectId) {
+            try {
+                // todo
+                // domain="[('id', 'in', [project]), ('type', '=', 'out_invoice')]"
+                // model="account.invoice"
+
+                const action = await this.orm.call(
+                    "project.project",
+                    "action_view_invoices",
+                    [projectId]
+                );
+                this.action.doAction(action);
+            } catch (error) {
+                this.notification.add("Une erreur est survenue : openInvoices", {
+                    type: "danger",
+                });
+            }
+        } else {
+            this.notification.add("Une erreur est survenue : aucun projectId", {
+                type: "danger",
+            });
+        }
+    }
 }
 
 GlobalActions.template = "project_overview.GlobalActions";
+
+// dans project
+// has_any_so_to_invoice
+// has_any_so_with_nothing_to_invoice

@@ -17,10 +17,9 @@
                     projectId="state.projectData.id"
                     employeesData='state.employeesData'
                 />
-                <Timesheets />
             </t>
             <t t-else="">
-                <p>Chargement des données...</p>
+                <p>Loading data...</p>
             </t>
         </div>
     </t>

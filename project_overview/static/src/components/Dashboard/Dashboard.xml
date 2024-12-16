@@ -6,21 +6,21 @@
                 <tbody>
                     <tr>
                         <th rowspan="6">
-                            <a t-on-click="onClickHoursButton">Heures</a>
+                            <a t-on-click="onClickHoursButton">Hours</a>
                         </th>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.hours.billable_time" />
+                            <t t-esc="allData.hours.billable_time" />
                         </td>
-                        <td>Feuilles de temps</td>
+                        <td>Timesheets</td>
                         <th rowspan="6">
-                            <a t-on-click="onClickRatesButton">Taux</a>
+                            <a t-on-click="onClickRatesButton">Rates</a>
                         </th>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.rates.billable_time" />&#160;%
+                            <t t-esc="allData.rates.billable_time" />&#160;%
                         </td>
-                        <td>Feuilles de temps</td>
+                        <td>Timesheets</td>
                         <th rowspan="6">
-                            <a t-on-click="onClickProfitabilityButton">Rentabilité</a>
+                            <a t-on-click="onClickProfitabilityButton">Profitability</a>
                         </th>
                         <td style='text-align:right'>
                             <span>
@@ -29,23 +29,17 @@
                                 />
                             </span>
                         </td>
-                        <td>Facturé</td>
+                        <td>Invoiced</td>
                     </tr>
                     <tr>
-                        <td
-                            t-if="state.data.hours.billable_fixed"
-                            style='text-align:right'
-                        >
-                            <t t-esc="state.data.hours.billable_fixed" />
+                        <td style='text-align:right'>
+                            <t t-esc="allData.hours.billable_fixed" />
                         </td>
-                        <td>Fixe</td>
-                        <td
-                            t-if="state.data.hours.billable_fixed"
-                            style='text-align:right'
-                        >
-                            <t t-esc="state.data.rates.billable_fixed" />&#160;%
+                        <td>Fixed</td>
+                        <td style='text-align:right'>
+                            <t t-esc="allData.rates.billable_fixed" />&#160;%
                         </td>
-                        <td>Fixe</td>
+                        <td>Fixed</td>
                         <td style='text-align:right'>
                             <span>
                                 <t
@@ -53,49 +47,43 @@
                                 />
                             </span>
                         </td>
-                        <td>À facturer</td>
+                        <td>To invoice</td>
                     </tr>
                     <tr>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.hours.non_billable" />
+                            <t t-esc="allData.hours.non_billable" />
+                        </td>
+                        <td>Non billable</td>
+                        <td style='text-align:right'>
+                            <t t-esc="allData.rates.non_billable" />&#160;%
+                        </td>
+                        <td>Non billable</td>
+                        <td style='text-align:right'>
+                            <t t-esc="formatPriceAsCurrency(costs.total.billed)" />
                         </td>
                         <td>
-                            <a>Non facturable</a>
-                        </td>
-                        <td style='text-align:right'>
-                            <t t-esc="state.data.rates.non_billable" />&#160;%
-                        </td>
-                        <td>Non facturable</td>
-                        <td style='text-align:right'>
-                            <span>
-                                <t t-esc="formatPriceAsCurrency(costs.total.billed)" />
-                            </span>
-                        </td>
-                        <td>
-                            Coût facturé
+                            Re-invoiced costs
                         </td>
                     </tr>
                     <tr>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.hours.billable_manual" />
+                            <t t-esc="allData.hours.billable_manual" />
                         </td>
-                        <td>Facturation manuelle</td>
+                        <td>Billable manual</td>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.rates.billable_manual" />&#160;%
+                            <t t-esc="allData.rates.billable_manual" />&#160;%
                         </td>
-                        <td>Facturation manuelle</td>
- <td style='text-align:right'>
-                            <span>
-                                <t t-esc="formatPriceAsCurrency(costs.total.to_bill)" />
-                            </span>
+                        <td>Billable manual</td>
+                        <td style='text-align:right'>
+                            <t t-esc="formatPriceAsCurrency(costs.total.to_bill)" />
                         </td>
                         <td>
-                            Coût à facturer
+                            Costs
                         </td>
                     </tr>
                     <tr>
                         <td style='text-align:right'>
-                            <t t-esc="state.data.totalHours" />
+                            <t t-esc="allData.totalHours" />
                         </td>
                         <td>
                             <b>Total</b>
@@ -103,9 +91,7 @@
                         <td />
                         <td />
                        <td style='text-align:right'>
-                            <span>
-                                <t t-esc="formatPriceAsCurrency(profitabilityTotal)" />
-                            </span>
+                            <t t-esc="formatPriceAsCurrency(profitabilityTotal)" />
                         </td>
                         <td>
                             <b>Total</b>
