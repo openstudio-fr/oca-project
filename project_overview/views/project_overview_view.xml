@@ -17,24 +17,15 @@
                         widget="project_overview"
                         nolabel="1"
                         style="width:100%"
-                        context="{'default_project_id': id,  'additional_info': 'some_value', 'user_filters': user.filters}"
                     />
                     <field
                         name="overview_data"
                         widget="project_timesheets"
                         nolabel="1"
                         style="width:100%"
-                        context="{'default_project_id': id}"
                     />
                 </sheet>
             </form>
         </field>
     </record>
 </odoo>
-<!-- <header>
-                    <div class="o_form_statusbar">
-                        <div class="o_statusbar_buttons">
-                            <p>Ici</p>
-                        </div>
-                    </div>
-                </header> -->

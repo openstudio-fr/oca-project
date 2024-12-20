@@ -6,7 +6,7 @@
     "version": "16.0.1.0.0",
     "website": "https://github.com/OCA/project",
     "author": "Elise Gigot <egigot@openstudio.fr>",
-    "depends": ["project", "web"],
+    "depends": ["project", "web", "sale_timesheet"],
     "summary": "Add project overview page",
     "license": "AGPL-3",
     "data": [

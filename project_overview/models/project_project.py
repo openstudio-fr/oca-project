@@ -1,6 +1,13 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
+from odoo.osv import expression
 
 from odoo import _, api, fields, models
+import debugpy
+import logging
+import json
+
+_logger = logging.getLogger(__name__)
 
 
 class ProjectProject(models.Model):
@@ -20,23 +27,20 @@ class ProjectProject(models.Model):
     @api.depends()
     def _compute_overview_data(self):
         for record in self:
+            tasks = record.task_ids
+            analytic_lines = self.env["account.analytic.line"].search_read(
+                [("task_id", "in", tasks.ids)], ["task_id", "date", "unit_amount", "user_id"], load=None
+            )
+            sale_lines = self.env["sale.order.line"].search_read(
+                [("task_id", "in", tasks.ids)], ["task_id", "product_uom_qty"], load=None
+            )
+            employees = {emp["user_id"]: emp for emp in self.env["hr.employee"].search_read(
+                [("user_id", "!=", False)], ["name", "user_id"], load=None
+            )}
 
-            now = datetime.now().date()
+            month_ids, start_months, end_months = self._overview_get_month_dates()
 
-            # Générer les dates de début et de fin pour les 3 derniers mois
-            start_months = [
-                (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
-                for i in range(2, -1, -1)
-            ]
-            end_months = [
-                (start_month.replace(day=1) + timedelta(days=31)).replace(day=1)
-                - timedelta(days=1)
-                for start_month in start_months
-            ]
-            month_ids = [date.strftime("%b.").lower() for date in start_months]
-
-            # Colonnes
-            columns = [
+            table_columns = [
                 {"id": "name", "name": "Nom"},
                 {"id": "before", "name": "Avant"},
                 *[{"id": month_id, "name": month_id} for month_id in month_ids],
@@ -45,124 +49,132 @@ class ProjectProject(models.Model):
                 {"id": "remaining", "name": "Restant"},
             ]
 
-            # Données du projet
-            project_data = {
-                "name": record.name,
-                "id": record.id,
-                "before": 0.0,
-                month_ids[0]: 0.0,
-                month_ids[1]: 0.0,
-                month_ids[2]: 0.0,
-                "done": 0.0,
-                "sold": 0.0,
-                "remaining": 0.0,
-                "tasks": [],
-            }
+            orders = defaultdict(lambda: self._overview_create_empty_order(month_ids))
+            unordered = self._overview_create_empty_order(month_ids, name="Pas de bon de commande")
 
-            total_before = 0.0
-            totals_by_month = {month_id: 0.0 for month_id in month_ids}
-            total_done = 0.0
-            total_sold = 0.0
+            for task in tasks:
+                task_id = task.id
+                task_name = task.name
+                task_order_id = task.sale_order_id.id if task.sale_order_id else None
+                task_order_name = task.sale_order_id.name if task.sale_order_id else "Pas de bon de commande"
+                task_sale_line_id = task.sale_line_id.id if task.sale_line_id else None
 
-            for task in record.task_ids:
-                task_data = {
-                    "name": task.name,
-                    "task_id": task.id,
-                    "sale_line_id": task.sale_line_id.id,
-                    "order_id": task.sale_order_id.id,
-                    "before": 0.0,
-                    month_ids[0]: 0.0,
-                    month_ids[1]: 0.0,
-                    month_ids[2]: 0.0,
-                    "done": 0.0,
-                    "sold": 0.0,
-                    "remaining": 0.0,
-                    "employees": [],
-                }
+                task_hours = [line for line in analytic_lines if line["task_id"] == task_id]
+                task_data = self._overview_initialize_task_data(month_ids)
 
-                task_before = 0.0
-                task_by_month = {month_id: 0.0 for month_id in month_ids}
-                task_done = 0.0
-                task_sold = 0.0
+                employee_data = defaultdict(lambda: self._overview_initialize_task_data(month_ids))
 
-                # Récupération des lignes analytiques
-                lines = self.env["account.analytic.line"].search(
-                    [
-                        ("task_id", "=", task.id),
-                    ]
-                )
-                for line in lines:
-                    line_date = line.date
+                _logger.debug("Employee data: %s", "\n".join(str(emp) for emp in employee_data.items()))
+                _logger.debug("Analytic lines: %s", "\n".join(str(line) for line in analytic_lines))
+                _logger.debug("Task hours: %s", "\n".join(str(line) for line in task_hours))
+
+                for line in task_hours:
+                    line_date = line["date"]
+                    user_id = line["user_id"]
+
+                    _logger.info("User ID: %s", user_id)
+                    _logger.info("Employee in employees: %s", user_id in employees)
+                    if user_id not in employees:
+                        continue
+
                     if line_date < start_months[0]:
-                        task_before += line.unit_amount
+                        task_data["before"] += line["unit_amount"]
+                        employee_data[user_id]["before"] += line["unit_amount"]
                     else:
-                        for idx, (start_date, end_date) in enumerate(
-                            zip(start_months, end_months)
-                        ):
+                        for idx, (start_date, end_date) in enumerate(zip(start_months, end_months)):
                             if start_date <= line_date <= end_date:
-                                month_id = month_ids[idx]
-                                task_by_month[month_id] += line.unit_amount
+                                task_data[month_ids[idx]] += line["unit_amount"]
+                                employee_data[user_id][month_ids[idx]] += line["unit_amount"]
 
-                    task_done += line.unit_amount
+                task_data["done"] = sum(line["unit_amount"] for line in task_hours)
+                for user_id in employee_data:
+                    employee_data[user_id]["done"] = sum(
+                        employee_data[user_id][key] for key in month_ids + ["before"]
+                    )
 
-                # Heures vendues (relation avec les lignes de commande)
-                sale_lines = self.env["sale.order.line"].search(
-                    [("task_id", "=", task.id)]
-                )
-                for sale_line in sale_lines:
-                    task_sold += sale_line.product_uom_qty
+                task_sales = [sale for sale in sale_lines if sale["task_id"] == task_id]
+                task_data["sold"] = sum(sale["product_uom_qty"] for sale in task_sales)
+                for user_id in employee_data:
+                    employee_data[user_id]["sold"] = task_data["sold"]
 
-                # Calcul des heures restantes
-                task_remaining = task_sold - task_done
+                task_data["remaining"] = task_data["sold"] - task_data["done"]
+                for user_id in employee_data:
+                    employee_data[user_id]["remaining"] = (
+                        employee_data[user_id]["sold"] - employee_data[user_id]["done"]
+                    )
 
-                # Mise à jour des données de la tâche
-                task_data["before"] = task_before
-                for month_id in month_ids:
-                    task_data[month_id] = task_by_month[month_id]
-                task_data["done"] = task_done
-                task_data["sold"] = task_sold
-                task_data["remaining"] = task_remaining
-
-                # Mise à jour des totaux du projet
-                total_before += task_before
-                for month_id in month_ids:
-                    totals_by_month[month_id] += task_by_month[month_id]
-                total_done += task_done
-                total_sold += task_sold
-
-                # Ajouter les employés
-                employees = task.user_ids.mapped("employee_ids")
-                for employee in employees:
-                    employee_data = {
-                        "name": employee.name,
-                        "before": 0.0,
-                        month_ids[0]: 0.0,
-                        month_ids[1]: 0.0,
-                        month_ids[2]: 0.0,
-                        "done": 0.0,
-                        "sold": 0.0,
-                        "remaining": 0.0,
+                task_employees = [
+                    {
+                        "name": employees[user_id]["name"],
+                        **employee_data[user_id]
                     }
-                    task_data["employees"].append(employee_data)
+                    for user_id in employee_data
+                ]
 
-                project_data["tasks"].append(task_data)
+                target_order = orders[task_order_id] if task_order_id else unordered
+                target_order["name"] = task_order_name
+                target_order["id"] = task_order_id
+                target_order["before"] += task_data["before"]
+                for month_id in month_ids:
+                    target_order[month_id] += task_data[month_id]
+                target_order["done"] += task_data["done"]
+                target_order["sold"] += task_data["sold"]
+                target_order["remaining"] += task_data["remaining"]
 
-            # Calcul des heures restantes au niveau du projet
-            total_remaining = total_sold - total_done
+                target_order["sale_lines"].append({
+                    "id": task_sale_line_id,
+                    "name": task_name,
+                    **task_data,
+                    "employees": task_employees
+                })
 
-            # Mise à jour des totaux dans le projet
-            project_data["before"] = total_before
-            for month_id in month_ids:
-                project_data[month_id] = totals_by_month[month_id]
-            project_data["done"] = total_done
-            project_data["sold"] = total_sold
-            project_data["remaining"] = total_remaining
+            result = []
+            for order_id, order_data in orders.items():
+                result.append(order_data)
+            if unordered["sale_lines"]:
+                result.append(unordered)
 
-            # Enregistrement des données générées
             record.overview_data = {
-                "columns": columns,
-                "content": [project_data],
+                "columns": table_columns,
+                "content": result
             }
+
+
+    def _overview_get_month_dates(self):
+        now = datetime.now().date()
+        start_months = [
+            (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+            for i in range(2, -1, -1)
+        ]
+        end_months = [
+            (start_month + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+            for start_month in start_months
+        ]
+        month_ids = [date.strftime("%b").lower() + "." for date in start_months]
+        return month_ids, start_months, end_months
+
+    def _overview_create_empty_order(self, month_ids, name=""):
+        return {
+            "id": None,
+            "name": name,
+            "before": 0.0,
+            **{month_id: 0.0 for month_id in month_ids},
+            "done": 0.0,
+            "sold": 0.0,
+            "remaining": 0.0,
+            "sale_lines": []
+        }
+
+    def _overview_initialize_task_data(self, month_ids):
+        return {
+            "before": 0.0,
+            **{month_id: 0.0 for month_id in month_ids},
+            "done": 0.0,
+            "sold": 0.0,
+            "remaining": 0.0
+        }
+
+
 
     # Ouvre la page 'Vue s'ensemble'
     def action_project_overview(self):
@@ -396,18 +408,29 @@ class ProjectProject(models.Model):
         }
         return action
 
-    def action_view_invoices(self):
-        # ici il n'y a pas les factures drafs
-        # todo: ajouter les filtres
-        action = self.env["ir.actions.act_window"]._for_xml_id(
-            "sale.action_invoice_salesteams"
-        )
-        action["display_name"] = _("%(name)s's Invoices", name=self.name)
-        action["context"] = {
-            "default_project_id": self.id,
-            "active_id": self.id,
-            "active_model": "account.move",
+    # Ouvrir la vue "Factures"
+    def action_view_invoices(self, invoicesIds):
+        action = {
+        'type': 'ir.actions.act_window',
+        'res_model': 'account.move',
+        'name': _("%(name)s's Invoices", name=self.name),
+        'context': {'create': False},
         }
+
+        if len(invoicesIds) == 1:
+            action.update({
+                'res_id': invoicesIds[0], 
+                'views': [[False, 'form']],
+            })
+        else:
+            action.update({
+                'domain': [('id', 'in',invoicesIds)],
+                'views': [
+                    [False, 'tree'],
+                    [False, 'form'],
+                ],
+            })
+        
         return action
 
     # todo: action_create_sale_order
@@ -423,8 +446,14 @@ class ProjectProject(models.Model):
         }
         return action
 
-    # def get_overview_data(self):
-    #     self.ensure_one()
-    #     panel_data = {}
-    #     panel_data['profitability_items'] = self._get_profitability_items()
-    #     return panel_data
+    def get_custom_data(self, filters=None):
+        self.ensure_one()
+        with_action=False
+        # domains=[(l[0], l[1], l[2]) for l in (filters or [])]
+        return super()._get_profitability_items_from_aal(
+            super()._get_profitability_items(with_action),
+            with_action,
+            domains=[('project_id', 'in', [8])]
+        )
+
+

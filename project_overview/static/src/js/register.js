@@ -15,7 +15,6 @@ export const projectOverviewFormView = {
     buttonTemplate: "project.CustomFormView.Buttons",
 };
 
-// console.log(formView)
 registry.category("fields").add("project_overview", ProjectOverviewComponent);
 registry.category("fields").add("project_timesheets", Timesheets);
 registry.category("views").add("project_overview_form_view", projectOverviewFormView);

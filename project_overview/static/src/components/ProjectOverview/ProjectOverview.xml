@@ -7,11 +7,13 @@
                     projectId="state.projectData.id"
                     taskCount="state.projectData.task_count"
                     saleOrderCount="state.projectData.sale_order_count"
+                    invoiceIds="state.invoiceIds"
                 />
                 <Dashboard
                     projectId="state.projectData.id"
                     invoiceTypeData="state.invoiceTypeData"
                     profitabilityData="state.profitabilityData"
+                    currency='state.currency'
                 />
                 <TimeByPeople
                     projectId="state.projectData.id"

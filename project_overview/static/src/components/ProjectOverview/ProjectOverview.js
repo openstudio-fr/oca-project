@@ -9,17 +9,17 @@ import {useService} from "@web/core/utils/hooks";
 export class ProjectOverviewComponent extends Component {
     setup() {
         super.setup();
-
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-
         this.state = useState({
             projectData: null,
             invoiceTypeData: null,
             employeesData: null,
             profitabilityData: null,
             prevDomain: null,
+            currency: null,
+            invoiceIds: null,
         });
 
         this.searchModel = this.env.searchModel;
@@ -45,6 +45,7 @@ export class ProjectOverviewComponent extends Component {
             this.loadInvoiceTypeData();
             this.loadEmployeesData();
             this.loadProfitabilityData();
+            this.loadCurrencyData();
         });
     }
 
@@ -76,13 +77,25 @@ export class ProjectOverviewComponent extends Component {
         if (projectId) {
             try {
                 const fields = await this.orm.call("project.project", "fields_get");
+                // Informations du projet
                 const projectData = await this.orm.call(
                     "project.project",
                     "search_read",
                     [[["id", "=", projectId]], [...Object.keys(fields)]]
                 );
-                console.log(projectData[0]);
+
                 this.state.projectData = projectData[0];
+                const orderIds = projectData[0].order_ids; 
+                
+                // Détails des devis
+                const saleOrders = await this.orm.call("sale.order", "search_read", [
+                    [["id", "in", orderIds]],
+                    ["id", "name", "invoice_ids"],
+                ]);
+
+                const invoiceIds = saleOrders.map((order) => order.invoice_ids).flat(); // Fusionne tous les tableaux d'invoice_ids en un seul
+                this.state.invoiceIds = invoiceIds;
+
             } catch (error) {
                 this.notification.add("Une erreur est survenue : loadProjectData", {
                     type: "danger",
@@ -117,6 +130,28 @@ export class ProjectOverviewComponent extends Component {
                 this.state.invoiceTypeData = invoiceTypeData;
             } catch (error) {
                 this.notification.add("Une erreur est survenue : loadInvoiceTypeData", {
+                    type: "danger",
+                });
+            }
+        } else {
+            this.notification.add("Une erreur est survenue : aucun projectId", {
+                type: "danger",
+            });
+        }
+    }
+
+    // Permet d'obtenir la devise courante
+    async loadCurrencyData() {
+        const projectId = this.props.record.context.default_project_id;
+
+        if (projectId) {
+            try {
+                const data = await this.orm.call("account.analytic.line", "read", [
+                    projectId,
+                ]);
+                this.state.currency = data[0].currency_id[1];
+            } catch (error) {
+                this.notification.add("Une erreur est survenue : loadCurrencyData", {
                     type: "danger",
                 });
             }
@@ -187,14 +222,25 @@ export class ProjectOverviewComponent extends Component {
         const filters = this.processData(this.env.searchModel.domain || []);
         if (projectId) {
             try {
-                // const fields = await this.orm.call("project.project", 'fields_get');
-                const data = await this.orm.call("project.project", "get_panel_data", [
+                // filters [
+                //     ["order_id", "ilike","21"],
+                //     ["date",">=", "2024-01-01"],
+                //     ["date", "<=", "2024-12-19"]
+                // ]
+
+                const data = await this.orm.call("project.project", "get_custom_data", [
                     [projectId],
+                    filters,
                 ]);
-                console.log(data);
-                this.state.profitabilityData = data.profitability_items;
+
+                this.state.profitabilityData = data;
             } catch (error) {
-                this.notification.add(error.message, {type: "danger"});
+                this.notification.add(
+                    "Une erreur est survenue : loadProfitabilityData",
+                    {
+                        type: "danger",
+                    }
+                );
             }
         } else {
             this.notification.add("Une erreur est survenue : aucun projectId", {
@@ -203,8 +249,6 @@ export class ProjectOverviewComponent extends Component {
         }
     }
 }
-
-// {context: filters}
 
 ProjectOverviewComponent.template = "project_overview.ProjectOverview";
 ProjectOverviewComponent.components = {

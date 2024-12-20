@@ -38,18 +38,16 @@
                     <t t-esc="saleOrderCount" />&#160;Sales Orders
                 </span>
             </button>
-            <button class="o_project_overview_button" t-on-click="openInvoices">
+            <button class="o_project_overview_button" t-on-click="openInvoices" t-if="invoiceCount !== 0">
                 <i
                     class="fa fa-fw fa-pencil-square-o"
                     aria-label="Invoices"
                     title="Invoices"
                 />
                 <span>
-                    &#160;Invoices
+                    <t t-esc="invoiceCount" />&#160;Invoices
                 </span>
             </button>
-            <!-- todo: nb de facture -->
-            <!-- todo: ajouter des conditions pour afficher le btn facture -->
         </div>
     </t>
 </templates>

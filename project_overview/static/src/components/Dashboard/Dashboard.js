@@ -103,9 +103,10 @@ export class Dashboard extends Component {
 
     // Formatter l'affichage de la devise
     formatPriceAsCurrency(price) {
-        return price.toLocaleString("fr-FR", {
+        const currency= this.props.currency
+        return (price || 0).toLocaleString("fr-FR", {
             style: "currency",
-            currency: "EUR",
+            currency,
         });
     }
 

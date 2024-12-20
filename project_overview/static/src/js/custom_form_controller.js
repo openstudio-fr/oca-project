@@ -26,7 +26,6 @@ export class CustomFormController extends FormController {
         const projectId = this.props.context.active_id;
         if (projectId) {
             try {
-                // console.log(projectId);
                 const projectData = await this.orm.call("project.project", "read", [
                     projectId,
                 ]);

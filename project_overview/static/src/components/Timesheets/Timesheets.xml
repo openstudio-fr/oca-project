@@ -30,34 +30,34 @@
                   <t t-else="">
                     <td class="text-center">
                       <span
-                                                t-esc="convertToHHMM(data[field])"
-                                                t-att-class="data[field] === 0 ?'text-muted' : ''"
-                                            />
+                          t-esc="convertToHHMM(data[field])"
+                          t-att-class="data[field] === 0 ?'text-muted' : ''"
+                      />
                     </td>
                   </t>
                 </t>
               </tr>
-              <t t-if="data.tasks">
-                <t t-foreach="data.tasks" t-as="task" t-key='task.name'>
+              <t t-if="data.sale_lines">
+                <t t-foreach="data.sale_lines" t-as="saleLine" t-key='saleLine.name'>
                   <tr>
                     <t t-foreach="state.ids" t-as="field" t-key="field">
                       <t t-if="field === 'name'">
                         <td style="padding-left: 30px ;">
-                          <span t-esc="task[field]" />
+                          <span t-esc="saleLine[field]" />
                         </td>
                       </t>
                       <t t-else="">
                         <td class="text-center">
                           <span
-                                                        t-esc="convertToHHMM(task[field])"
-                                                        t-att-class="task[field] === 0 ?'text-muted' : ''"
-                                                    />
+                              t-esc="convertToHHMM(saleLine[field])"
+                              t-att-class="saleLine[field] === 0 ?'text-muted' : ''"
+                          />
                         </td>
                       </t>
                     </t>
                   </tr>
-                  <t t-if="task.employees">
-                    <t t-foreach="task.employees" t-as="employee" t-key='employee.name'>
+                  <t t-if="saleLine.employees">
+                    <t t-foreach="saleLine.employees" t-as="employee" t-key='employee.name'>
                       <tr>
                         <t t-foreach="state.ids" t-as="field" t-key="field">
                           <t t-if="field === 'name'">
@@ -68,9 +68,9 @@
                           <t t-else="">
                             <td class="text-center">
                               <span
-                                                                t-esc="convertToHHMM(employee[field])"
-                                                                t-att-class="employee[field] === 0 ?'text-muted' : ''"
-                                                            />
+                                  t-esc="convertToHHMM(employee[field])"
+                                  t-att-class="employee[field] === 0 ?'text-muted' : ''"
+                              />
                             </td>
                           </t>
                         </t>

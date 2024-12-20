@@ -22,6 +22,11 @@ export class GlobalActions extends Component {
         return this.props.saleOrderCount;
     }
 
+    // Permet d'obtenir la liste des id des factures
+    get invoiceCount() {
+        return this.props.invoiceIds ? this.props.invoiceIds.length : 0;
+    }
+
     // Action du bouton "Projet"
     async openProject() {
         const projectId = this.props.projectId;
@@ -117,16 +122,13 @@ export class GlobalActions extends Component {
     // Action du bouton "Facture"
     async openInvoices() {
         const projectId = this.props.projectId;
-        if (projectId) {
+        const invoiceIds = this.props.invoiceIds;
+        if (projectId && invoiceIds && invoiceIds.length > 0) {
             try {
-                // todo
-                // domain="[('id', 'in', [project]), ('type', '=', 'out_invoice')]"
-                // model="account.invoice"
-
                 const action = await this.orm.call(
                     "project.project",
                     "action_view_invoices",
-                    [projectId]
+                    [projectId, invoiceIds]
                 );
                 this.action.doAction(action);
             } catch (error) {
@@ -147,3 +149,4 @@ GlobalActions.template = "project_overview.GlobalActions";
 // dans project
 // has_any_so_to_invoice
 // has_any_so_with_nothing_to_invoice
+// action_quotations_with_onboarding

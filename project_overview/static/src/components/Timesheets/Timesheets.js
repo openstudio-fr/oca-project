@@ -22,6 +22,15 @@ export class Timesheets extends Component {
 
     async loadData() {
         const data = this.props.record.data.overview_data;
+        
+        // todo: ne fonctionne pas car méthode privée
+        // const projectId = this.props.record.projectId
+        // const action = await this.orm.call(
+        //     "project.project",
+        //     `_compute_order_ids`,
+        //     [projectId]
+        // );
+        
         this.state.data = data;
         this.state.ids = (data?.["columns"] || []).map((column) => column.id);
     }
