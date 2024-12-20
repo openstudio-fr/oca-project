@@ -23,7 +23,7 @@
                 data-hotkey="s"
                 t-on-click.stop="() => this.createSaleOrder()"
             >
-                Créer un bon de commande
+                Create Sales Orders
             </button>
         </div>
     </t>

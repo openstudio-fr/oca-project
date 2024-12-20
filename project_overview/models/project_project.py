@@ -473,6 +473,12 @@ class ProjectProject(models.Model):
         self.ensure_one()
         with_action = False
         # domains=[(l[0], l[1], l[2]) for l in (filters or [])]
+        # pb meme le domaine en dur n'est pas utilisé dans _get_profitability_items_from_aal de sale_timesheet project.py
+        # malgré domains=None et 
+        # domain = self.sudo()._get_profitability_aal_domain()
+        # if domains is None:
+        #     domains = []
+        # domain += domains
         return super()._get_profitability_items_from_aal(
             super()._get_profitability_items(with_action),
             with_action,

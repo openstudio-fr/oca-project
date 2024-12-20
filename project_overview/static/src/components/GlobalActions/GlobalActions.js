@@ -145,8 +145,3 @@ export class GlobalActions extends Component {
 }
 
 GlobalActions.template = "project_overview.GlobalActions";
-
-// dans project
-// has_any_so_to_invoice
-// has_any_so_with_nothing_to_invoice
-// action_quotations_with_onboarding

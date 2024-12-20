@@ -218,15 +218,35 @@ export class ProjectOverviewComponent extends Component {
     // Permet d'obtenir les informations sur la rentabilité d'un projet "project.project"
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
+
+        // Avec processData qui enlève type et projectId : 
         const filters = this.processData(this.env.searchModel.domain || []);
+        // filters = [
+        //     ["order_id", "ilike","21"],
+        //     ["date",">=", "2024-01-01"],
+        //     ["date", "<=", "2024-12-19"]
+        // ]
+
+
+        // Sans processData : 
+        // const filters = this.env.searchModel.domain || [];
+        // filters = [
+        //     "&",
+        //     "&",
+        //     ["type", "=", "content"],
+        //     ["project_id", "=", 8],
+        //     "&",
+        //     "|",
+        //     ["sale_order_id", "ilike", "41"],
+        //     ["sale_order_id", "ilike", "77"],
+        //     "&",
+        //     ["date_start", "=", "2024-12-20"],
+        //     ["date", "=", "2024-12-19"],
+        // ];
+        // dans ce cas, possible d'enlever domains=[(l[0], l[1], l[2]) for l in (filters or [])] dans project_project
+        // il faudra peut être enlever type et project_id... je sais pas trop
         if (projectId) {
             try {
-                // filters [
-                //     ["order_id", "ilike","21"],
-                //     ["date",">=", "2024-01-01"],
-                //     ["date", "<=", "2024-12-19"]
-                // ]
-
                 const data = await this.orm.call("project.project", "get_custom_data", [
                     [projectId],
                     filters,
