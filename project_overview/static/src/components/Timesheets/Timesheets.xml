@@ -30,9 +30,9 @@
                   <t t-else="">
                     <td class="text-center">
                       <span
-                          t-esc="convertToHHMM(data[field])"
-                          t-att-class="data[field] === 0 ?'text-muted' : ''"
-                      />
+                                                t-esc="convertToHHMM(data[field])"
+                                                t-att-class="data[field] === 0 ?'text-muted' : ''"
+                                            />
                     </td>
                   </t>
                 </t>
@@ -49,15 +49,19 @@
                       <t t-else="">
                         <td class="text-center">
                           <span
-                              t-esc="convertToHHMM(saleLine[field])"
-                              t-att-class="saleLine[field] === 0 ?'text-muted' : ''"
-                          />
+                                                        t-esc="convertToHHMM(saleLine[field])"
+                                                        t-att-class="saleLine[field] === 0 ?'text-muted' : ''"
+                                                    />
                         </td>
                       </t>
                     </t>
                   </tr>
                   <t t-if="saleLine.employees">
-                    <t t-foreach="saleLine.employees" t-as="employee" t-key='employee.name'>
+                    <t
+                                            t-foreach="saleLine.employees"
+                                            t-as="employee"
+                                            t-key='employee.name'
+                                        >
                       <tr>
                         <t t-foreach="state.ids" t-as="field" t-key="field">
                           <t t-if="field === 'name'">
@@ -68,9 +72,9 @@
                           <t t-else="">
                             <td class="text-center">
                               <span
-                                  t-esc="convertToHHMM(employee[field])"
-                                  t-att-class="employee[field] === 0 ?'text-muted' : ''"
-                              />
+                                                                t-esc="convertToHHMM(employee[field])"
+                                                                t-att-class="employee[field] === 0 ?'text-muted' : ''"
+                                                            />
                             </td>
                           </t>
                         </t>

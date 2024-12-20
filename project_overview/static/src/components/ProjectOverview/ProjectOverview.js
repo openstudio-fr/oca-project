@@ -85,8 +85,8 @@ export class ProjectOverviewComponent extends Component {
                 );
 
                 this.state.projectData = projectData[0];
-                const orderIds = projectData[0].order_ids; 
-                
+                const orderIds = projectData[0].order_ids;
+
                 // Détails des devis
                 const saleOrders = await this.orm.call("sale.order", "search_read", [
                     [["id", "in", orderIds]],
@@ -95,7 +95,6 @@ export class ProjectOverviewComponent extends Component {
 
                 const invoiceIds = saleOrders.map((order) => order.invoice_ids).flat(); // Fusionne tous les tableaux d'invoice_ids en un seul
                 this.state.invoiceIds = invoiceIds;
-
             } catch (error) {
                 this.notification.add("Une erreur est survenue : loadProjectData", {
                     type: "danger",

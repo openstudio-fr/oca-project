@@ -38,7 +38,11 @@
                     <t t-esc="saleOrderCount" />&#160;Sales Orders
                 </span>
             </button>
-            <button class="o_project_overview_button" t-on-click="openInvoices" t-if="invoiceCount !== 0">
+            <button
+                class="o_project_overview_button"
+                t-on-click="openInvoices"
+                t-if="invoiceCount !== 0"
+            >
                 <i
                     class="fa fa-fw fa-pencil-square-o"
                     aria-label="Invoices"
