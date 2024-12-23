@@ -1,9 +1,9 @@
 /** @odoo-module **/
 
 import {Component, useState, onWillStart, useRef, useEffect} from "@odoo/owl";
-import {TimeByPeople} from "../TimeByPeople/TimeByPeople.js";
-import {Dashboard} from "../Dashboard/Dashboard.js";
-import {GlobalActions} from "../GlobalActions/GlobalActions.js";
+import {TimeByPeople} from "../time_by_people/time_by_people.js";
+import {Dashboard} from "../dashboard/dashboard.js";
+import {GlobalActions} from "../global_actions/global_actions.js";
 import {useService} from "@web/core/utils/hooks";
 
 export class ProjectOverviewComponent extends Component {
@@ -83,7 +83,6 @@ export class ProjectOverviewComponent extends Component {
                     "search_read",
                     [[["id", "=", projectId]], [...Object.keys(fields)]]
                 );
-
                 this.state.projectData = projectData[0];
                 const orderIds = projectData[0].order_ids;
 
@@ -219,7 +218,7 @@ export class ProjectOverviewComponent extends Component {
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
 
-        // Avec processData qui enlève type et projectId : 
+        // Avec processData qui enlève type et projectId :
         const filters = this.processData(this.env.searchModel.domain || []);
         // filters = [
         //     ["order_id", "ilike","21"],
@@ -227,8 +226,7 @@ export class ProjectOverviewComponent extends Component {
         //     ["date", "<=", "2024-12-19"]
         // ]
 
-
-        // Sans processData : 
+        // Sans processData :
         // const filters = this.env.searchModel.domain || [];
         // filters = [
         //     "&",

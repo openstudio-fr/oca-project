@@ -6,7 +6,11 @@
     "version": "16.0.1.0.0",
     "website": "https://github.com/OCA/project",
     "author": "Elise Gigot <egigot@openstudio.fr>",
-    "depends": ["project", "web", "sale_timesheet"],
+    "depends": [
+        "project",
+        "web",
+        "sale_timesheet",
+    ],
     "summary": "Add project overview page",
     "license": "AGPL-3",
     "data": [
@@ -23,6 +27,9 @@
             "project_overview/static/src/js/custom_form_controller.js",
             "project_overview/static/src/js/custom_form_control_panel.js",
             "project_overview/static/src/xml/custom_form_panel.xml",
+        ],
+        "web.qunit_suite_tests": [
+            "project_overview/static/src/tests/dashboard_tests.js",
         ],
     },
     "installable": True,

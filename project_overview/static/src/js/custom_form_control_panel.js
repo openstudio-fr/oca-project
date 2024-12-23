@@ -14,7 +14,7 @@ export class CustomFormControlPanel extends ControlPanel {
                 if (
                     tempSearchItems[key] &&
                     tempSearchItems[key].name &&
-                    !filtersToKeep.includes(tempSearchItems[key]?.type)
+                    !filtersToKeep.includes(tempSearchItems[key].type)
                 ) {
                     delete tempSearchItems[key];
                 }
@@ -44,6 +44,10 @@ export class CustomFormControlPanel extends ControlPanel {
                 }
             }
             this.env.searchModel.searchViewFields = tempSearchViewFields;
+        }
+
+        if (this.pagerProps) {
+            this.pagerProps = null;
         }
     }
 }

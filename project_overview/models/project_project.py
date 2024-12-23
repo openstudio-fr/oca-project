@@ -459,22 +459,25 @@ class ProjectProject(models.Model):
     # todo: action_create_sale_order
     # Ouvre la popup de création de bon de commande
     def action_create_sale_order(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("sale.action_orders")
         view_form_id = self.env.ref("sale.view_order_form").id
-        action["context"] = {
-            "views": [(view_form_id, "form")],
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("%(name)s's Quotation", name=self.name),
+            "res_model": "sale.order",
             "view_mode": "form",
-            "active_id": self.id,
-            "res_id": self.id,
+            "views": [(view_form_id, "form")],
+            "target": "current",
+            "context": {
+                "default_project_id": self.id,
+            },
         }
-        return action
 
     def get_custom_data(self, filters=None):
         self.ensure_one()
         with_action = False
         # domains=[(l[0], l[1], l[2]) for l in (filters or [])]
         # pb meme le domaine en dur n'est pas utilisé dans _get_profitability_items_from_aal de sale_timesheet project.py
-        # malgré domains=None et 
+        # malgré domains=None et
         # domain = self.sudo()._get_profitability_aal_domain()
         # if domains is None:
         #     domains = []

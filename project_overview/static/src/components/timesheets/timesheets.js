@@ -32,7 +32,9 @@ export class Timesheets extends Component {
         // );
 
         this.state.data = data;
-        this.state.ids = (data?.["columns"] || []).map((column) => column.id);
+        this.state.ids = (data && data.columns ? data.columns : []).map(
+            (column) => column.id
+        );
     }
 
     // Convertir le format d'affichage des heures en hh:mm
@@ -50,7 +52,7 @@ export class Timesheets extends Component {
     // Action qui ouvre le détail d'un devis
     openSaleOrder = async (id) => {
         const projectId = this.props.record.context.default_project_id;
-        if (id) {
+        if (projectId && id) {
             try {
                 const action = await this.orm.call(
                     "project.project",

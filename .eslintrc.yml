@@ -9,6 +9,8 @@ parserOptions:
 overrides:
   - files:
       - "**/*.esm.js"
+      - "project_overview/static/src/components/**/*.js"
+      - "project_overview/static/src/js/*.js"
     parserOptions:
       sourceType: module
 

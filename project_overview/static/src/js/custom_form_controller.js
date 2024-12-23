@@ -1,13 +1,14 @@
 /** @odoo-module */
 
+import {onWillStart, useState} from "@odoo/owl";
 import {FormController} from "@web/views/form/form_controller";
 import {useService} from "@web/core/utils/hooks";
-import {useState, onWillStart} from "@odoo/owl";
 
 export class CustomFormController extends FormController {
     async setup() {
         super.setup();
 
+        console.log(this);
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
