@@ -14,7 +14,7 @@ class ProjectProject(models.Model):
         "sale.order", string="Sale Orders", compute="_compute_order_ids"
     )
     widget_field = fields.Char(string="Project Overview Widget")
-    overview_data = fields.Json(compute="_compute_overview_data", store=False)
+    timesheets_field = fields.Json(compute="_compute_timesheets_field", store=False)
 
     @api.depends("task_ids")
     def _compute_order_ids(self):
@@ -22,7 +22,7 @@ class ProjectProject(models.Model):
             project.order_ids = project._fetch_sale_order_items().order_id
 
     @api.depends()
-    def _compute_overview_data(self):
+    def _compute_timesheets_field(self):
         for record in self:
             tasks = record.task_ids
             analytic_lines = self.env["account.analytic.line"].search_read(
@@ -159,7 +159,7 @@ class ProjectProject(models.Model):
             if unordered["sale_lines"]:
                 result.append(unordered)
 
-            record.overview_data = {"columns": table_columns, "content": result}
+            record.timesheets_field = {"columns": table_columns, "content": result}
 
     def _overview_get_month_dates(self):
         now = datetime.now().date()

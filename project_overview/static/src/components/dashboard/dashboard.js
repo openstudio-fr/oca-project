@@ -1,5 +1,6 @@
 /** @odoo-module **/
 
+import {_lt} from "@web/core/l10n/translation";
 import {useService} from "@web/core/utils/hooks";
 
 const {Component} = owl;
@@ -182,6 +183,29 @@ export class Dashboard extends Component {
             this.notification.add("Une erreur est survenue : aucun projectId", {
                 type: "danger",
             });
+        }
+    }
+
+    formatName(field) {
+        switch (field) {
+            case "billable_time":
+                return _lt("Billable time");
+            case "billable_fixed":
+                return _lt("Billable fixed");
+            case "non_billable":
+                return _lt("Non billable");
+            case "billable_manual":
+                return _lt("Billable manual");
+            case "invoiced":
+                return _lt("Invoiced");
+            case "to_invoice":
+                return _lt("To invoice");
+            case "billed":
+                return _lt("Re-invoiced costs");
+            case "to_bill":
+                return _lt("Costs");
+            default:
+                return field.replace("_", " ");
         }
     }
 }

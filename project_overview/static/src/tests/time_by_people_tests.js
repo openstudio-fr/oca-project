@@ -3,7 +3,7 @@
 import {getFixture, mount, patchWithCleanup} from "@web/../tests/helpers/utils";
 import {actionService} from "@web/webclient/actions/action_service";
 import {browser} from "@web/core/browser/browser";
-import {Dashboard} from "../components/dashboard/dashboard";
+import {TimeByPeople} from "../components/time_by_people/time_by_people";
 import {hotkeyService} from "@web/core/hotkeys/hotkey_service";
 import {makeTestEnv} from "@web/../tests/helpers/mock_env";
 import {menuService} from "@web/webclient/menus/menu_service";
@@ -19,7 +19,7 @@ const {QUnit} = window;
 let baseConfig = null;
 let target = null;
 
-QUnit.module("project_overview.Dashboard", {
+QUnit.module("project_overview.TimeByPeople", {
     async beforeEach() {
         target = getFixture();
         serviceRegistry.add("menu", menuService);
@@ -46,62 +46,55 @@ QUnit.module("project_overview.Dashboard", {
     },
 });
 
-QUnit.test("Should render Dashboard component", async (assert) => {
-    assert.expect(5);
+QUnit.test("Should render Time By People component", async (assert) => {
+    assert.expect(3);
 
     const env = await makeTestEnv(baseConfig);
 
     const mockProps = {
-        profitabilityData: {
-            revenues: {
-                data: [],
-                total: {invoiced: 1000, to_invoice: 500},
+        projectId: "1",
+        employeesData: [
+            {
+                employeeId: 20,
+                name: "Abigail Peterson",
+                invoiceDetails: [
+                    {
+                        invoiceType: "billable_time",
+                        total: 28.5,
+                    },
+                    {
+                        invoiceType: "non_billable",
+                        total: 2,
+                    },
+                ],
+                total: 30.5,
             },
-            costs: {
-                data: [],
-                total: {billed: -300, to_bill: -200},
+            {
+                employeeId: 3,
+                name: "Anita Oliver",
+                invoiceDetails: [
+                    {
+                        invoiceType: "billable_fixed",
+                        total: 12,
+                    },
+                    {
+                        invoiceType: "non_billable",
+                        total: 1,
+                    },
+                ],
+                total: 13,
             },
-        },
-        invoiceTypeData: [
-            {timesheet_invoice_type: "billable_time", unit_amount: 5},
-            {timesheet_invoice_type: "non_billable", unit_amount: 2},
         ],
-        projectId: 1,
-        currency: "EUR",
     };
 
-    await mount(Dashboard, target, {env, props: mockProps});
+    await mount(TimeByPeople, target, {env, props: mockProps});
 
-    const dashboardInstance = target.querySelector(".o_dashboard");
-    assert.ok(dashboardInstance, "Dashboard component should be rendered");
+    const timeByPeopleInstance = target.querySelector(".o_people_time");
+    assert.ok(timeByPeopleInstance, "TimeByPeople component should be rendered");
 
-    const profitabilityTotal = new Dashboard(mockProps).profitabilityTotal;
-    assert.strictEqual(
-        profitabilityTotal,
-        1000,
-        "Profitability total should be correctly calculated"
-    );
+    const maxTotal = new TimeByPeople(mockProps).maxTotal;
+    assert.strictEqual(maxTotal, 30.5, "max total should be correct");
 
-    const formattedPrice = new Dashboard(mockProps).formatPriceAsCurrency(1234.56);
-    assert.strictEqual(
-        formattedPrice,
-        "1 234,56 €",
-        "Price should be formatted as currency according to locale and currency code"
-    );
-
-    const formattedZeroPrice = new Dashboard(mockProps).formatPriceAsCurrency(0);
-    assert.strictEqual(
-        formattedZeroPrice,
-        "0,00 €",
-        "Price of 0 should be formatted correctly"
-    );
-
-    const formattedNegativePrice = new Dashboard(mockProps).formatPriceAsCurrency(
-        -456.78
-    );
-    assert.strictEqual(
-        formattedNegativePrice,
-        "-456,78 €",
-        "Negative prices should be formatted correctly"
-    );
+    const convertToHHMM = new TimeByPeople(mockProps).convertToHHMM(28.5);
+    assert.strictEqual(convertToHHMM, "28:30", "convert to HHMM should be correct");
 });

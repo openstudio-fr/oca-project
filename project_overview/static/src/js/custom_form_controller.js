@@ -8,7 +8,6 @@ export class CustomFormController extends FormController {
     async setup() {
         super.setup();
 
-        console.log(this);
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");

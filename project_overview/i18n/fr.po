@@ -60,6 +60,7 @@ msgstr "Feuilles de temps de %(name)"
 #. module: project_overview
 #. odoo-javascript
 #: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
 #, python-format
 msgid "Billable fixed"
 msgstr "Quantité fixe facturable"
@@ -76,6 +77,7 @@ msgstr "Facturation manuelle"
 #. module: project_overview
 #. odoo-javascript
 #: code:addons/project_overview/static/src/components/TimeByPeople/TimeByPeople.xml:0
+#: code:addons/project_overview/static/src/components/Dashboard/Dashboard.xml:0
 #, python-format
 msgid "Billable time"
 msgstr "Temps facturable"

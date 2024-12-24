@@ -1,10 +1,10 @@
 /** @odoo-module **/
 
-import {Component, useState, onWillStart, useRef, useEffect} from "@odoo/owl";
-import {TimeByPeople} from "../time_by_people/time_by_people.js";
+import {Component, onWillStart, useEffect, useState} from "@odoo/owl";
+import {useService} from "@web/core/utils/hooks";
 import {Dashboard} from "../dashboard/dashboard.js";
 import {GlobalActions} from "../global_actions/global_actions.js";
-import {useService} from "@web/core/utils/hooks";
+import {TimeByPeople} from "../time_by_people/time_by_people.js";
 
 export class ProjectOverviewComponent extends Component {
     setup() {
@@ -49,7 +49,7 @@ export class ProjectOverviewComponent extends Component {
         });
     }
 
-    processData = (array) => {
+    processData(array) {
         const filteredData = array.filter((item) => {
             if (Array.isArray(item)) {
                 return !(item.includes("type") || item.includes("project_id"));
@@ -69,7 +69,7 @@ export class ProjectOverviewComponent extends Component {
             }
             return item;
         });
-    };
+    }
 
     // Permet d'obtenir les informations générales du projet "project.project"
     async loadProjectData() {
@@ -92,7 +92,7 @@ export class ProjectOverviewComponent extends Component {
                     ["id", "name", "invoice_ids"],
                 ]);
 
-                const invoiceIds = saleOrders.map((order) => order.invoice_ids).flat(); // Fusionne tous les tableaux d'invoice_ids en un seul
+                const invoiceIds = saleOrders.map((order) => order.invoice_ids).flat();
                 this.state.invoiceIds = invoiceIds;
             } catch (error) {
                 this.notification.add("Une erreur est survenue : loadProjectData", {
@@ -177,14 +177,14 @@ export class ProjectOverviewComponent extends Component {
                     {lazy: false}
                 );
                 const employees = (data || []).reduce((acc, element) => {
-                    const employeeId = element["employee_id"][0];
-                    const invoiceType = element["timesheet_invoice_type"];
+                    const employeeId = element.employee_id[0];
+                    const invoiceType = element.timesheet_invoice_type;
 
                     let employee = acc.find((e) => e.employeeId === employeeId);
                     if (!employee) {
                         employee = {
                             employeeId: employeeId,
-                            name: element["employee_id"][1],
+                            name: element.employee_id[1],
                             invoiceDetails: [],
                             total: 0,
                         };
@@ -193,10 +193,10 @@ export class ProjectOverviewComponent extends Component {
 
                     employee.invoiceDetails.push({
                         invoiceType: invoiceType,
-                        total: element["unit_amount"],
+                        total: element.unit_amount,
                     });
 
-                    employee.total += element["unit_amount"];
+                    employee.total += element.unit_amount;
 
                     return acc;
                 }, []);
@@ -220,7 +220,7 @@ export class ProjectOverviewComponent extends Component {
 
         // Avec processData qui enlève type et projectId :
         const filters = this.processData(this.env.searchModel.domain || []);
-        // filters = [
+        // Filters = [
         //     ["order_id", "ilike","21"],
         //     ["date",">=", "2024-01-01"],
         //     ["date", "<=", "2024-12-19"]

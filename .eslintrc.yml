@@ -11,6 +11,7 @@ overrides:
       - "**/*.esm.js"
       - "project_overview/static/src/components/**/*.js"
       - "project_overview/static/src/js/*.js"
+      - "project_overview/static/src/tests/*.js"
     parserOptions:
       sourceType: module
 

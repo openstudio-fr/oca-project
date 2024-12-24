@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="project_overview.GlobalActions" owl="1">
-        <div class="o_project_overview_stat">
-            <button class="o_project_overview_button" t-on-click="openProject">
+        <div class="o_global_actions">
+            <button class="o_button" t-on-click="openProject">
                 <i
                     class="fa fa-fw fa-puzzle-piece"
                     aria-label="Project"
@@ -10,7 +10,7 @@
                 />
                 <span>Project</span>
             </button>
-            <button class="o_project_overview_button" t-on-click="openTimesheets">
+            <button class="o_button" t-on-click="openTimesheets">
                 <i
                     class="fa fa-fw fa-calendar"
                     aria-label="Timesheets"
@@ -18,7 +18,7 @@
                 />
                 <span>Timesheets</span>
             </button>
-            <button class="o_project_overview_button" t-on-click="openTaskList">
+            <button class="o_button" t-on-click="openTaskList">
                 <i class="fa fa-fw fa-tasks" aria-label="Tasks" title="Tasks" />
                 <span>
                     <t t-esc="taskCount" />&#160;Tasks
@@ -27,7 +27,7 @@
             <button
                 t-if="saleOrderCount !== 0"
                 t-on-click="openSaleOrder"
-                class="o_project_overview_button"
+                class="o_button"
             >
                 <i
                     class="fa fa-fw fa-dollar"
@@ -39,7 +39,7 @@
                 </span>
             </button>
             <button
-                class="o_project_overview_button"
+                class="o_button"
                 t-on-click="openInvoices"
                 t-if="invoiceCount !== 0"
             >

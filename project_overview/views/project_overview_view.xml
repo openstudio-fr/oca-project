@@ -19,7 +19,7 @@
                         style="width:100%"
                     />
                     <field
-                        name="overview_data"
+                        name="timesheets_field"
                         widget="project_timesheets"
                         nolabel="1"
                         style="width:100%"

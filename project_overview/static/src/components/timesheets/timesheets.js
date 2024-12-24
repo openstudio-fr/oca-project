@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import {Component, useState, onWillStart} from "@odoo/owl";
+import {Component, onWillStart, useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 
 export class Timesheets extends Component {
@@ -9,6 +9,8 @@ export class Timesheets extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+
+        this.openSaleOrder = this.openSaleOrder.bind(this);
 
         this.state = useState({
             data: null,
@@ -21,9 +23,9 @@ export class Timesheets extends Component {
     }
 
     async loadData() {
-        const data = this.props.record.data.overview_data;
+        const data = this.props.record.data.timesheets_field;
 
-        // todo: ne fonctionne pas car méthode privée
+        // Todo: ne fonctionne pas car méthode privée
         // const projectId = this.props.record.projectId
         // const action = await this.orm.call(
         //     "project.project",
@@ -50,7 +52,7 @@ export class Timesheets extends Component {
     }
 
     // Action qui ouvre le détail d'un devis
-    openSaleOrder = async (id) => {
+    async openSaleOrder(id) {
         const projectId = this.props.record.context.default_project_id;
         if (projectId && id) {
             try {
@@ -66,7 +68,7 @@ export class Timesheets extends Component {
                 });
             }
         }
-    };
+    }
 }
 
 Timesheets.template = "project_overview.Timesheets";

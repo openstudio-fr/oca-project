@@ -9,37 +9,51 @@
         color: #5a4f7f !important;
     }
 
-    .o_project_overview_stat {
+    .o_global_actions {
         display: flex;
         justify-content: flex-end;
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
-    }
 
-    .o_project_overview_people_time_progress {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+        .o_button {
+            padding: 10px 15px;
+            background-color: #71639e;
+            color: #fff;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            gap: 5px;
+            align-items: center;
 
-    .o_project_overview_button {
-        padding: 10px 15px;
-        background-color: #71639e;
-        color: #fff;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        gap: 5px;
-        align-items: center;
-
-        &:hover {
-            background-color: #605486;
+            &:hover {
+                background-color: #605486;
+            }
         }
     }
 
-    .o_project_overview_people_time {
+    .o_dashboard {
+        display: flex;
+        flex-wrap: wrap;
+
+        .o_item {
+            width: 33%;
+
+            .o_text_right {
+                text-align: right;
+            }
+        }
+    }
+
+    .o_people_time {
+        .o_button_list {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
         .o_progress_badge {
             border: none;
             border-radius: 50px;
@@ -62,21 +76,32 @@
             color: white;
         }
 
-        > .o_timesheet_plan_badge {
-            margin-bottom: 10px;
-            > .badge {
-                border: none;
-            }
+        .o_content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .table {
-            margin-top: 15px;
+
+        .o_employee_time_details {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .table > thead > tr > th,
-        .table > thead > tr > td,
-        .table > tbody > tr > th,
-        .table > tbody > tr > td {
-            border: none;
-            padding: 0px;
+
+        .o_employee_name {
+            width: 15%;
+        }
+
+        .o_employee_total {
+            width: 5%;
+        }
+
+        .o_employee_progress_container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
     }
 }

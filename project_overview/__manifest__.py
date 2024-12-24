@@ -30,6 +30,9 @@
         ],
         "web.qunit_suite_tests": [
             "project_overview/static/src/tests/dashboard_tests.js",
+            "project_overview/static/src/tests/global_actions_tests.js",
+            "project_overview/static/src/tests/time_by_people_tests.js",
+            "project_overview/static/src/tests/timesheets_tests.js",
         ],
     },
     "installable": True,

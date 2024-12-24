@@ -10,6 +10,10 @@ export class TimeByPeople extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+
+        this.onClickTimesheet = this.onClickTimesheet.bind(this);
+        this.onClickProgressBar = this.onClickProgressBar.bind(this);
+        this.openEmployeeTimesheets = this.openEmployeeTimesheets.bind(this);
     }
 
     // Permet d'obtenir l'id du projet
@@ -45,9 +49,8 @@ export class TimeByPeople extends Component {
 
         return `${formattedHours}:${formattedMinutes}`;
     }
-
     // Fonction générique pour les boutons d'actions qui ouvre une feuille de temps avec un filtre spécifique
-    onClickTimesheet = async (filterType) => {
+    async onClickTimesheet(filterType) {
         const projectId = this.props.projectId;
         if (projectId && filterType) {
             try {
@@ -67,10 +70,10 @@ export class TimeByPeople extends Component {
                 type: "danger",
             });
         }
-    };
+    }
 
     // Action au clic de la barre de progression
-    onClickProgressBar = async (employeeId, invoiceType) => {
+    async onClickProgressBar(employeeId, invoiceType) {
         const projectId = this.props.projectId;
         if (employeeId && invoiceType && projectId) {
             try {
@@ -86,10 +89,10 @@ export class TimeByPeople extends Component {
                 });
             }
         }
-    };
+    }
 
     // Action qui ouvre la feuille de temps d'un employé
-    openEmployeeTimesheets = async (employeeId) => {
+    async openEmployeeTimesheets(employeeId) {
         const projectId = this.props.projectId;
         try {
             const action = await this.orm.call(
@@ -103,7 +106,7 @@ export class TimeByPeople extends Component {
                 type: "danger",
             });
         }
-    };
+    }
 }
 
 TimeByPeople.template = "project_overview.TimeByPeople";
