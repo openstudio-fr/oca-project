@@ -38,7 +38,11 @@
         flex-wrap: wrap;
 
         .o_item {
-            width: 33%;
+            width: 100%;
+
+            @media screen and (min-width: 1024px) {
+                width: 33%;
+            }
 
             .o_text_right {
                 text-align: right;
@@ -47,6 +51,10 @@
     }
 
     .o_people_time {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
         .o_button_list {
             display: flex;
             justify-content: flex-end;

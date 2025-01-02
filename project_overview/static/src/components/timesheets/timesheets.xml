@@ -3,11 +3,15 @@
   <t t-name="project_overview.Timesheets" owl="1">
     <div class="o_project_overview_timesheets">
       <h3 name="table_plan_title">Timesheets</h3>
-      <t t-if="state.data and state.ids">
+      <t t-if="state.timesheetsData and state.columnsId">
         <table class="table">
           <thead>
             <tr>
-              <t t-foreach="state.data['columns']" t-as="colomn" t-key="colomn.id">
+              <t
+                                t-foreach="state.timesheetsData['columns']"
+                                t-as="colomn"
+                                t-key="colomn.id"
+                            >
                 <th>
                   <span>
                     <t t-esc="colomn.name" />
@@ -17,30 +21,38 @@
             </tr>
           </thead>
           <tbody>
-            <t t-foreach="state.data['content']" t-as="data" t-key="data.name">
+            <t
+                            t-foreach="state.timesheetsData['content']"
+                            t-as="timesheetsData"
+                            t-key="timesheetsData.name"
+                        >
               <tr>
-                <t t-foreach="state.ids" t-as="field" t-key="field">
+                <t t-foreach="state.columnsId" t-as="field" t-key="field">
                   <t t-if="field === 'name'">
                     <td style="'padding-left: 0px ;'">
-                      <a t-on-click="() => openSaleOrder(data.id)">
-                        <span t-esc="data[field]" />
+                      <a t-on-click="() => openSaleOrder(timesheetsData.id)">
+                        <span t-esc="timesheetsData[field]" />
                       </a>
                     </td>
                   </t>
                   <t t-else="">
                     <td class="text-center">
                       <span
-                                                t-esc="convertToHHMM(data[field])"
-                                                t-att-class="data[field] === 0 ?'text-muted' : ''"
+                                                t-esc="convertToHHMM(timesheetsData[field])"
+                                                t-att-class="timesheetsData[field] === 0 ?'text-muted' : ''"
                                             />
                     </td>
                   </t>
                 </t>
               </tr>
-              <t t-if="data.sale_lines">
-                <t t-foreach="data.sale_lines" t-as="saleLine" t-key='saleLine.name'>
+              <t t-if="timesheetsData.sale_lines">
+                <t
+                                    t-foreach="timesheetsData.sale_lines"
+                                    t-as="saleLine"
+                                    t-key='saleLine.name'
+                                >
                   <tr>
-                    <t t-foreach="state.ids" t-as="field" t-key="field">
+                    <t t-foreach="state.columnsId" t-as="field" t-key="field">
                       <t t-if="field === 'name'">
                         <td style="padding-left: 30px ;">
                           <span t-esc="saleLine[field]" />
@@ -63,7 +75,7 @@
                                             t-key='employee.name'
                                         >
                       <tr>
-                        <t t-foreach="state.ids" t-as="field" t-key="field">
+                        <t t-foreach="state.columnsId" t-as="field" t-key="field">
                           <t t-if="field === 'name'">
                             <td style="padding-left: 60px ;">
                               <span t-esc="employee[field]" />
@@ -88,7 +100,7 @@
         </table>
       </t>
       <t t-else="">
-        <p>Loading data...</p>
+        <p>Loading timesheetsData...</p>
       </t>
     </div>
   </t>

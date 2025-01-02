@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import {Component} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
+
+const {Component} = owl;
 
 export class GlobalActions extends Component {
     setup() {
@@ -12,22 +13,26 @@ export class GlobalActions extends Component {
         this.notification = useService("notification");
     }
 
-    // Permet d'obtenir le nombre de tâches
+    // --------------------------------------------------------------------------
+    // Getter for task, sale order and invoice count
+    // --------------------------------------------------------------------------
+
     get taskCount() {
         return this.props.taskCount;
     }
 
-    // Permet d'obtenir le nombre de devis
     get saleOrderCount() {
         return this.props.saleOrderCount;
     }
 
-    // Permet d'obtenir la liste des id des factures
     get invoiceCount() {
         return this.props.invoiceIds ? this.props.invoiceIds.length : 0;
     }
 
-    // Action du bouton "Projet"
+    // --------------------------------------------------------------------------
+    // Action for buttons
+    // --------------------------------------------------------------------------
+
     async openProject() {
         const projectId = this.props.projectId;
         if (projectId) {
@@ -39,18 +44,17 @@ export class GlobalActions extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : openProject", {
+                this.notification.add("An error has occurred : openProject", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Action du bouton "Feuille de temps"
     async openTimesheets() {
         const projectId = this.props.projectId;
         if (projectId) {
@@ -62,18 +66,17 @@ export class GlobalActions extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : openTimesheets", {
+                this.notification.add("An error has occurred : openTimesheets", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Action du bouton "Tâches"
     async openTaskList() {
         const projectId = this.props.projectId;
         if (projectId) {
@@ -85,18 +88,17 @@ export class GlobalActions extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : openTaskList", {
+                this.notification.add("An error has occurred : openTaskList", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Action du bouton "Devis"
     async openSaleOrder() {
         const projectId = this.props.projectId;
         if (projectId) {
@@ -108,18 +110,17 @@ export class GlobalActions extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : openSaleOrder", {
+                this.notification.add("An error has occurred : openSaleOrder", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Action du bouton "Facture"
     async openInvoices() {
         const projectId = this.props.projectId;
         const invoiceIds = this.props.invoiceIds;
@@ -132,12 +133,12 @@ export class GlobalActions extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : openInvoices", {
+                this.notification.add("An error has occurred : openInvoices", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }

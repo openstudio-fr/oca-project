@@ -22,6 +22,10 @@ export class CustomFormController extends FormController {
         });
     }
 
+    // --------------------------------------------------------------------------
+    // API Call
+    // --------------------------------------------------------------------------
+
     async loadProjectData() {
         const projectId = this.props.context.active_id;
         if (projectId) {
@@ -33,16 +37,20 @@ export class CustomFormController extends FormController {
                 this.state.showSaleOrderButton = noSaleOrder;
                 this.state.showInvoiceButton = !noSaleOrder;
             } catch (error) {
-                this.notification.add("Une erreur est survenue : loadProjectData", {
+                this.notification.add("An error has occurred : loadProjectData", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
+
+    // --------------------------------------------------------------------------
+    // Action for buttons
+    // --------------------------------------------------------------------------
 
     async createInvoice() {
         this.disableButtons();
@@ -56,12 +64,12 @@ export class CustomFormController extends FormController {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : createInvoice", {
+                this.notification.add("An error has occurred : createInvoice", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
@@ -86,7 +94,7 @@ export class CustomFormController extends FormController {
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }

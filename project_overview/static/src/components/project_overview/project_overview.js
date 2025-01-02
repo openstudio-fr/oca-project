@@ -1,10 +1,11 @@
 /** @odoo-module **/
 
-import {Component, onWillStart, useEffect, useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 import {Dashboard} from "../dashboard/dashboard.js";
 import {GlobalActions} from "../global_actions/global_actions.js";
 import {TimeByPeople} from "../time_by_people/time_by_people.js";
+
+const {Component, onWillStart, useEffect, useState} = owl;
 
 export class ProjectOverviewComponent extends Component {
     setup() {
@@ -12,6 +13,9 @@ export class ProjectOverviewComponent extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+
+        this.searchModel = this.env.searchModel;
+
         this.state = useState({
             projectData: null,
             invoiceTypeData: null,
@@ -22,7 +26,15 @@ export class ProjectOverviewComponent extends Component {
             invoiceIds: null,
         });
 
-        this.searchModel = this.env.searchModel;
+        onWillStart(() => {
+            this.state.prevDomain = this.searchModel.domain;
+
+            this.loadProjectData();
+            this.loadInvoiceTypeData();
+            this.loadEmployeesData();
+            this.loadProfitabilityData();
+            this.loadCurrencyData();
+        });
 
         useEffect(() => {
             const currentDomain = this.searchModel.domain;
@@ -37,47 +49,54 @@ export class ProjectOverviewComponent extends Component {
                 this.state.prevDomain = currentDomain;
             }
         });
-
-        onWillStart(() => {
-            this.state.prevDomain = this.searchModel.domain;
-
-            this.loadProjectData();
-            this.loadInvoiceTypeData();
-            this.loadEmployeesData();
-            this.loadProfitabilityData();
-            this.loadCurrencyData();
-        });
     }
 
-    processData(array) {
-        const filteredData = array.filter((item) => {
-            if (Array.isArray(item)) {
-                return !(item.includes("type") || item.includes("project_id"));
+    // --------------------------------------------------------------------------
+    // Function to format filters
+    // --------------------------------------------------------------------------
+
+    formatFilters(array) {
+        const newArray = [...array];
+
+        ["type", "project_id"].forEach((key) => {
+            if (newArray.some((item) => Array.isArray(item) && item[0] === key)) {
+                newArray.shift();
             }
-            return item !== "&" && item !== "|";
+        });
+
+        const filteredData = newArray.filter((item) => {
+            return !(
+                Array.isArray(item) &&
+                ["type", "project_id"].some((key) => item.includes(key))
+            );
         });
 
         return filteredData.map((item) => {
-            if (item[0] === "date_start") {
-                return ["date", ">=", item[2]];
-            }
-            if (item[0] === "date") {
-                return ["date", "<=", item[2]];
-            }
-            if (item[0] === "sale_order_id") {
-                return ["order_id", item[1], item[2]];
+            if (Array.isArray(item)) {
+                switch (item[0]) {
+                    case "date_start":
+                        return ["date", ">=", item[2]];
+                    case "date":
+                        return ["date", "<=", item[2]];
+                    case "sale_order_id":
+                        return ["order_id", item[1], item[2]];
+                    default:
+                        return item;
+                }
             }
             return item;
         });
     }
 
-    // Permet d'obtenir les informations générales du projet "project.project"
+    // --------------------------------------------------------------------------
+    // API Calls
+    // --------------------------------------------------------------------------
+
     async loadProjectData() {
         const projectId = this.props.record.context.default_project_id;
         if (projectId) {
             try {
                 const fields = await this.orm.call("project.project", "fields_get");
-                // Informations du projet
                 const projectData = await this.orm.call(
                     "project.project",
                     "search_read",
@@ -85,8 +104,6 @@ export class ProjectOverviewComponent extends Component {
                 );
                 this.state.projectData = projectData[0];
                 const orderIds = projectData[0].order_ids;
-
-                // Détails des devis
                 const saleOrders = await this.orm.call("sale.order", "search_read", [
                     [["id", "in", orderIds]],
                     ["id", "name", "invoice_ids"],
@@ -95,21 +112,20 @@ export class ProjectOverviewComponent extends Component {
                 const invoiceIds = saleOrders.map((order) => order.invoice_ids).flat();
                 this.state.invoiceIds = invoiceIds;
             } catch (error) {
-                this.notification.add("Une erreur est survenue : loadProjectData", {
+                this.notification.add("An error has occurred : loadProjectData", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Permet d'obtenir les informations sur les types de factures "account.analytic.line"
     async loadInvoiceTypeData() {
         const projectId = this.props.record.context.default_project_id;
-        const filters = this.processData(this.env.searchModel.domain || []);
+        const filters = this.formatFilters(this.env.searchModel.domain || []);
         if (projectId) {
             try {
                 const invoiceTypeData = await this.orm.call(
@@ -127,18 +143,17 @@ export class ProjectOverviewComponent extends Component {
                 );
                 this.state.invoiceTypeData = invoiceTypeData;
             } catch (error) {
-                this.notification.add("Une erreur est survenue : loadInvoiceTypeData", {
+                this.notification.add("An error has occurred : loadInvoiceTypeData", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Permet d'obtenir la devise courante
     async loadCurrencyData() {
         const projectId = this.props.record.context.default_project_id;
 
@@ -149,21 +164,20 @@ export class ProjectOverviewComponent extends Component {
                 ]);
                 this.state.currency = data[0].currency_id[1];
             } catch (error) {
-                this.notification.add("Une erreur est survenue : loadCurrencyData", {
+                this.notification.add("An error has occurred : loadCurrencyData", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Permet d'obtenir les informations sur les employées "account.analytic.line"
     async loadEmployeesData() {
         const projectId = this.props.record.context.default_project_id;
-        const filters = this.processData(this.env.searchModel.domain || []);
+        const filters = this.formatFilters(this.env.searchModel.domain || []);
         if (projectId) {
             try {
                 const data = await this.orm.call(
@@ -202,47 +216,52 @@ export class ProjectOverviewComponent extends Component {
                 }, []);
                 this.state.employeesData = employees;
             } catch (error) {
-                this.notification.add("Une erreur est survenue : loadEmployeesData", {
+                this.notification.add("An error has occurred : loadEmployeesData", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
     // TODO : FILTRE
-    // Permet d'obtenir les informations sur la rentabilité d'un projet "project.project"
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
 
-        // Avec processData qui enlève type et projectId :
-        const filters = this.processData(this.env.searchModel.domain || []);
+        // Avec formatFilters qui enlève type et projectId :
+        const filters = this.formatFilters(this.env.searchModel.domain || []);
         // Filters = [
-        //     ["order_id", "ilike","21"],
-        //     ["date",">=", "2024-01-01"],
-        //     ["date", "<=", "2024-12-19"]
+        //     "&",
+        //     [
+        //         "date",
+        //         ">=",
+        //         "2024-01-01"
+        //     ],
+        //     "&",
+        //     [
+        //         "date",
+        //         "<=",
+        //         "2025-01-02"
+        //     ],
+        //     "|",
+        //     [
+        //         "order_id",
+        //         "ilike",
+        //         "21"
+        //     ],
+        //     [
+        //         "order_id",
+        //         "ilike",
+        //         "22"
+        //     ]
         // ]
 
-        // Sans processData :
-        // const filters = this.env.searchModel.domain || [];
-        // filters = [
-        //     "&",
-        //     "&",
-        //     ["type", "=", "content"],
-        //     ["project_id", "=", 8],
-        //     "&",
-        //     "|",
-        //     ["sale_order_id", "ilike", "41"],
-        //     ["sale_order_id", "ilike", "77"],
-        //     "&",
-        //     ["date_start", "=", "2024-12-20"],
-        //     ["date", "=", "2024-12-19"],
-        // ];
+        // Sans formatFilters :
+        // type project_id sale_order_id date_start date
         // dans ce cas, possible d'enlever domains=[(l[0], l[1], l[2]) for l in (filters or [])] dans project_project
-        // il faudra peut être enlever type et project_id... je sais pas trop
         if (projectId) {
             try {
                 const data = await this.orm.call("project.project", "get_custom_data", [
@@ -252,15 +271,12 @@ export class ProjectOverviewComponent extends Component {
 
                 this.state.profitabilityData = data;
             } catch (error) {
-                this.notification.add(
-                    "Une erreur est survenue : loadProfitabilityData",
-                    {
-                        type: "danger",
-                    }
-                );
+                this.notification.add("An error has occurred : loadProfitabilityData", {
+                    type: "danger",
+                });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }

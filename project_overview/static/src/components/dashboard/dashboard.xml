@@ -8,10 +8,10 @@
                         <th rowspan="6">
                             <a t-on-click="onClickHoursButton">Hours</a>
                         </th>
-                        <t t-foreach="allData.hours" t-as='hours' t-key='hours'>
+                        <t t-foreach="billingData.hours" t-as='hours' t-key='hours'>
                             <tr>
                                 <td class="o_text_right">
-                                    <t t-esc="allData.hours[hours]" />
+                                    <t t-esc="billingData.hours[hours]" />
                                 </td>
                                 <td>
                                     <t t-esc="formatName(hours)" />
@@ -20,7 +20,7 @@
                         </t>
                         <tr>
                             <td class="o_text_right">
-                                <t t-esc="allData.totalHours" />
+                                <t t-esc="billingData.totalHours" />
                             </td>
                             <td>
                                 <b>Total</b>
@@ -35,11 +35,13 @@
                         <th rowspan="6">
                             <a t-on-click="onClickRatesButton">Rates</a>
                         </th>
-                        <t t-foreach="allData.rates" t-as='rates' t-key='rates'>
+                        <t t-foreach="billingData.rates" t-as='rates' t-key='rates'>
                             <tr>
                                 <td class="o_text_right">
                                     <span>
-                                        <t t-esc="allData.rates[rates]" />&#160;%</span>
+                                        <t
+                                            t-esc="billingData.rates[rates]"
+                                        />&#160;%</span>
                                 </td>
                                 <td>
                                     <t t-esc="formatName(rates)" />
@@ -55,11 +57,15 @@
                         <th rowspan="6">
                             <a t-on-click="onClickProfitabilityButton">Profitability</a>
                         </th>
-                         <t t-foreach="revenues.total" t-as='revenue' t-key='revenue'>
+                         <t
+                            t-foreach="totalRevenueProfitability"
+                            t-as='revenue'
+                            t-key='revenue'
+                        >
                             <tr>
                                 <td class="o_text_right">
                                     <t
-                                        t-esc="formatPriceAsCurrency(revenues.total[revenue])"
+                                        t-esc="formatPriceAsCurrency(totalRevenueProfitability[revenue])"
                                     />
                                 </td>
                                 <td>
@@ -67,11 +73,11 @@
                                 </td>
                             </tr>
                         </t>
-                         <t t-foreach="costs.total" t-as='cost' t-key='cost'>
+                         <t t-foreach="totalCostProfitability" t-as='cost' t-key='cost'>
                             <tr>
                                 <td class="o_text_right">
                                     <t
-                                        t-esc="formatPriceAsCurrency(costs.total[cost])"
+                                        t-esc="formatPriceAsCurrency(totalCostProfitability[cost])"
                                     />
                                 </td>
                                 <td>
@@ -81,7 +87,7 @@
                         </t>
                         <tr>
                             <td class="o_text_right">
-                                <t t-esc="formatPriceAsCurrency(profitabilityTotal)" />
+                                <t t-esc="formatPriceAsCurrency(totalProfitability)" />
                             </td>
                             <td>
                                 <b>Total</b>

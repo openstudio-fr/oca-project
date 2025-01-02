@@ -5,8 +5,10 @@ import {ControlPanel} from "@web/search/control_panel/control_panel";
 export class CustomFormControlPanel extends ControlPanel {
     async setup() {
         super.setup();
+
         const searchViewFields = this.env.searchModel.searchViewFields;
         const searchItems = this.env.searchModel.searchItems;
+
         if (searchItems) {
             const tempSearchItems = {...searchItems};
             const filtersToKeep = ["favorite"];

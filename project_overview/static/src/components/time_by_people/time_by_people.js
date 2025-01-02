@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import {Component} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
+
+const {Component} = owl;
 
 export class TimeByPeople extends Component {
     setup() {
@@ -13,32 +14,13 @@ export class TimeByPeople extends Component {
 
         this.onClickTimesheet = this.onClickTimesheet.bind(this);
         this.onClickProgressBar = this.onClickProgressBar.bind(this);
-        this.openEmployeeTimesheets = this.openEmployeeTimesheets.bind(this);
+        this.onClickEmployeeTimesheets = this.onClickEmployeeTimesheets.bind(this);
     }
 
-    // Permet d'obtenir l'id du projet
-    get projectId() {
-        return this.props.projectId;
-    }
+    // --------------------------------------------------------------------------
+    // Function to convert data
+    // --------------------------------------------------------------------------
 
-    // Permet d'obtenir les informations sur les employés
-    get employees() {
-        return this.props.employeesData;
-    }
-
-    get employeesLength() {
-        return this.props.employeesData.length;
-    }
-
-    // Permet d'obtenir le temps maximum qu'un employé à travailler sur le projet
-    get maxTotal() {
-        const allEmployees = this.props.employeesData;
-        return (allEmployees || []).reduce((max, employee) => {
-            return employee.total > max ? employee.total : max;
-        }, 0);
-    }
-
-    // Convertir le format d'affichage des heures en hh:mm
     convertToHHMM(timeString) {
         const timeFloat = parseFloat(timeString);
         const hours = Math.floor(timeFloat);
@@ -49,7 +31,34 @@ export class TimeByPeople extends Component {
 
         return `${formattedHours}:${formattedMinutes}`;
     }
-    // Fonction générique pour les boutons d'actions qui ouvre une feuille de temps avec un filtre spécifique
+
+    // --------------------------------------------------------------------------
+    // Getters
+    // --------------------------------------------------------------------------
+
+    get projectId() {
+        return this.props.projectId;
+    }
+
+    get employees() {
+        return this.props.employeesData;
+    }
+
+    get employeesLength() {
+        return this.props.employeesData.length;
+    }
+
+    get maxWorkTime() {
+        const allEmployees = this.props.employeesData;
+        return (allEmployees || []).reduce((max, employee) => {
+            return employee.total > max ? employee.total : max;
+        }, 0);
+    }
+
+    // --------------------------------------------------------------------------
+    // Action for buttons
+    // --------------------------------------------------------------------------
+
     async onClickTimesheet(filterType) {
         const projectId = this.props.projectId;
         if (projectId && filterType) {
@@ -61,18 +70,17 @@ export class TimeByPeople extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : onClickTimesheet", {
+                this.notification.add("An error has occurred : onClickTimesheet", {
                     type: "danger",
                 });
             }
         } else {
-            this.notification.add("Une erreur est survenue : aucun projectId", {
+            this.notification.add("An error has occurred : no projectId", {
                 type: "danger",
             });
         }
     }
 
-    // Action au clic de la barre de progression
     async onClickProgressBar(employeeId, invoiceType) {
         const projectId = this.props.projectId;
         if (employeeId && invoiceType && projectId) {
@@ -84,27 +92,31 @@ export class TimeByPeople extends Component {
                 );
                 this.action.doAction(action);
             } catch (error) {
-                this.notification.add("Une erreur est survenue : onClickProgressBar", {
+                this.notification.add("An error has occurred : onClickProgressBar", {
                     type: "danger",
                 });
             }
         }
     }
 
-    // Action qui ouvre la feuille de temps d'un employé
-    async openEmployeeTimesheets(employeeId) {
+    async onClickEmployeeTimesheets(employeeId) {
         const projectId = this.props.projectId;
-        try {
-            const action = await this.orm.call(
-                "project.project",
-                `action_employee_timesheets`,
-                [projectId, employeeId]
-            );
-            this.action.doAction(action);
-        } catch (error) {
-            this.notification.add("Une erreur est survenue : openEmployeeTimesheets", {
-                type: "danger",
-            });
+        if (employeeId && projectId) {
+            try {
+                const action = await this.orm.call(
+                    "project.project",
+                    `action_employee_timesheets`,
+                    [projectId, employeeId]
+                );
+                this.action.doAction(action);
+            } catch (error) {
+                this.notification.add(
+                    "An error has occurred : onClickEmployeeTimesheets",
+                    {
+                        type: "danger",
+                    }
+                );
+            }
         }
     }
 }
