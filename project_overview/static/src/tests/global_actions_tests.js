@@ -31,7 +31,7 @@ QUnit.module("project_overview.GlobalActions", {
         serviceRegistry.add("orm", ormService);
 
         patchWithCleanup(browser, {
-            setTimeout: (handler, delay, ...args) => handler(...args),
+            setTimeout: (handler, ...args) => handler(...args),
             // eslint-disable-next-line no-empty-function
             clearTimeout: () => {},
         });
@@ -47,7 +47,7 @@ QUnit.module("project_overview.GlobalActions", {
 });
 
 QUnit.test("Should render Global Actions component", async (assert) => {
-    assert.expect(3);
+    assert.expect(5);
 
     const env = await makeTestEnv(baseConfig);
 
@@ -75,5 +75,15 @@ QUnit.test("Should render Global Actions component", async (assert) => {
         buttons.length,
         5,
         "There should be 5 buttons in the Global Actions component"
+    );
+
+    const pageTextContent = target.textContent;
+    assert.ok(
+        pageTextContent.includes("10 Tasks"),
+        "Tasks button should be present in the page"
+    );
+    assert.ok(
+        pageTextContent.includes("2 Sales Orders"),
+        "Sales Orders button should be present in the page"
     );
 });

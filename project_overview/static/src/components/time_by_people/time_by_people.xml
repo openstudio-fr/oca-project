@@ -54,7 +54,7 @@
                                 >
                                     <div
                                         t-if="invoice.total"
-                                        class="progress progress-bar"
+                                        class="progress progress-bar o_progress_bar"
                                         t-att-class="'o_progress_' + invoice.invoiceType"
                                         t-att-style="'width: ' + (invoice.total / maxWorkTime * 100) + '%'"
                                         t-att-title="convertToHHMM(invoice.total)"

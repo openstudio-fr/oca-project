@@ -31,7 +31,7 @@ QUnit.module("project_overview.Dashboard", {
         serviceRegistry.add("orm", ormService);
 
         patchWithCleanup(browser, {
-            setTimeout: (handler, delay, ...args) => handler(...args),
+            setTimeout: (handler, ...args) => handler(...args),
             // eslint-disable-next-line no-empty-function
             clearTimeout: () => {},
         });
@@ -47,7 +47,7 @@ QUnit.module("project_overview.Dashboard", {
 });
 
 QUnit.test("Should render Dashboard component", async (assert) => {
-    assert.expect(5);
+    assert.expect(8);
 
     const env = await makeTestEnv(baseConfig);
 
@@ -75,9 +75,20 @@ QUnit.test("Should render Dashboard component", async (assert) => {
     const dashboardInstance = target.querySelector(".o_dashboard");
     assert.ok(dashboardInstance, "Dashboard component should be rendered");
 
-    const profitabilityTotal = new Dashboard(mockProps).profitabilityTotal;
+    const pageTextContent = target.textContent;
+
+    assert.ok(
+        pageTextContent.includes("300,00 €"),
+        "The total cost billed should be present in the page"
+    );
+
+    assert.ok(
+        pageTextContent.includes("500,00 €"),
+        "The income to be billed must be present in the page"
+    );
+    const totalProfitability = new Dashboard(mockProps).totalProfitability;
     assert.strictEqual(
-        profitabilityTotal,
+        totalProfitability,
         1000,
         "Profitability total should be correctly calculated"
     );
@@ -104,4 +115,7 @@ QUnit.test("Should render Dashboard component", async (assert) => {
         "-456,78 €",
         "Negative prices should be formatted correctly"
     );
+
+    const convertToHHMM = new Dashboard(mockProps).convertToHHMM(666.25);
+    assert.strictEqual(convertToHHMM, "666:15", "convert to HHMM should be correct");
 });

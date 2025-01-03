@@ -31,7 +31,7 @@ QUnit.module("project_overview.TimeByPeople", {
         serviceRegistry.add("orm", ormService);
 
         patchWithCleanup(browser, {
-            setTimeout: (handler, delay, ...args) => handler(...args),
+            setTimeout: (handler, ...args) => handler(...args),
             // eslint-disable-next-line no-empty-function
             clearTimeout: () => {},
         });
@@ -47,7 +47,7 @@ QUnit.module("project_overview.TimeByPeople", {
 });
 
 QUnit.test("Should render Time By People component", async (assert) => {
-    assert.expect(3);
+    assert.expect(4);
 
     const env = await makeTestEnv(baseConfig);
 
@@ -92,9 +92,17 @@ QUnit.test("Should render Time By People component", async (assert) => {
     const timeByPeopleInstance = target.querySelector(".o_people_time");
     assert.ok(timeByPeopleInstance, "TimeByPeople component should be rendered");
 
-    const maxTotal = new TimeByPeople(mockProps).maxTotal;
-    assert.strictEqual(maxTotal, 30.5, "max total should be correct");
+    const maxWorkTime = new TimeByPeople(mockProps).maxWorkTime;
+    assert.strictEqual(maxWorkTime, 30.5, "max total should be correct");
 
     const convertToHHMM = new TimeByPeople(mockProps).convertToHHMM(28.5);
     assert.strictEqual(convertToHHMM, "28:30", "convert to HHMM should be correct");
+
+    await mount(TimeByPeople, target, {env, props: {}});
+    const withoutContent = target.textContent;
+
+    assert.ok(
+        withoutContent.includes("There is no timesheet at this time"),
+        "No timesheet message should be present in the page"
+    );
 });

@@ -10,7 +10,7 @@
                 position="inside"
             >
         <div>
-          <div role="menuitem" groups="project.group_project_user">
+          <div role="menuitem" groups="project.group_project_manager">
               <a name="action_project_overview" type="object">Project Overview</a>
           </div>
         </div>

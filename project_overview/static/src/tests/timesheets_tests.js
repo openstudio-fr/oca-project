@@ -31,7 +31,7 @@ QUnit.module("project_overview.Timesheets", {
         serviceRegistry.add("orm", ormService);
 
         patchWithCleanup(browser, {
-            setTimeout: (handler, delay, ...args) => handler(...args),
+            setTimeout: (handler, ...args) => handler(...args),
             // eslint-disable-next-line no-empty-function
             clearTimeout: () => {},
         });

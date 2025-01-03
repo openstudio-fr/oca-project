@@ -50,7 +50,7 @@ export class Dashboard extends Component {
     // --------------------------------------------------------------------------
 
     formatPriceAsCurrency(price) {
-        const currency = this.props.currency;
+        const currency = this.props.currency || "EUR";
         return (price || 0).toLocaleString("fr-FR", {
             style: "currency",
             currency,

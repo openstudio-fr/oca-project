@@ -40,8 +40,16 @@
         .o_item {
             width: 100%;
 
+            th {
+                width: 33%;
+            }
+
             @media screen and (min-width: 1024px) {
                 width: 33%;
+
+                th {
+                    width: auto;
+                }
             }
 
             .o_text_right {
@@ -67,6 +75,11 @@
             border-radius: 50px;
             font-size: 11px;
         }
+
+        .o_progress_bar:hover {
+            cursor: pointer;
+        }
+
         .o_progress_billable_time {
             background-color: #f0ad4e;
             color: white;
@@ -115,6 +128,8 @@
 }
 
 .o_project_overview_timesheets {
+    margin-top: 20px;
+
     a {
         cursor: pointer;
         font-weight: 600;
