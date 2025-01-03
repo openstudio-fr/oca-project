@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record id="projet_project_view_form" model="ir.ui.view">
+    <record id="project_project_overview_view_form" model="ir.ui.view">
         <field name="name">project.project.form.custom</field>
         <field name="model">project.project</field>
         <field name="arch" type="xml">
             <form
-                js_class='project_overview_form_view'
+                js_class='project_overview_custom_form_view'
                 create="false"
                 edit="false"
                 delete="false"
@@ -14,13 +14,13 @@
                 <sheet>
                     <field
                         name="widget_field"
-                        widget="project_overview"
+                        widget="project_overview_widget"
                         nolabel="1"
                         style="width:100%"
                     />
                     <field
                         name="timesheets_field"
-                        widget="project_timesheets"
+                        widget="project_timesheets_widget"
                         nolabel="1"
                         style="width:100%"
                     />
@@ -28,4 +28,26 @@
             </form>
         </field>
     </record>
+
+    <record id="action_project_overview" model="ir.actions.act_window">
+        <field name="name">Project Overview</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">form</field>
+        <field name="domain">[('project_id', '=', active_id)]</field>
+        <field name="context">{
+                "default_project_id": active_id,
+        }</field>
+        <field
+            name="view_id"
+            ref="project_overview.project_project_overview_view_form"
+        />
+    </record>
+
+    <menuitem
+        id="menu_project_overview"
+        name="Project Overview"
+        parent="project.menu_main_pm"
+        action="action_project_overview"
+        sequence="10"
+    />
 </odoo>

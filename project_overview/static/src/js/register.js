@@ -15,9 +15,8 @@ export const projectOverviewFormView = {
     buttonTemplate: "project.CustomFormView.Buttons",
 };
 
-registry.category("fields").add("project_overview", ProjectOverviewComponent);
-registry.category("fields").add("project_timesheets", Timesheets);
-registry.category("views").add("project_overview_form_view", projectOverviewFormView);
+registry.category("fields").add("project_overview_widget", ProjectOverviewComponent);
+registry.category("fields").add("project_timesheets_widget", Timesheets);
 registry
     .category("views")
-    .add("ProjectOverview.ProjectOverviewComponent", ProjectOverviewComponent);
+    .add("project_overview_custom_form_view", projectOverviewFormView);

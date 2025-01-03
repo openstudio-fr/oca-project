@@ -51,7 +51,8 @@ Credits
 Authors
 ~~~~~~~
 
-* Elise Gigot <egigot@openstudio.fr>
+* Elise Gigot
+* Simon Maillard
 
 Contributors
 ~~~~~~~~~~~~

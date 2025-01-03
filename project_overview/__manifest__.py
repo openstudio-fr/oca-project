@@ -5,7 +5,7 @@
     "category": "web",
     "version": "16.0.1.0.0",
     "website": "https://github.com/OCA/project",
-    "author": "Elise Gigot <egigot@openstudio.fr>",
+    "author": "Elise Gigot, Simon Maillard, Odoo Community Association (OCA)",
     "depends": [
         "project",
         "web",
@@ -14,9 +14,7 @@
     "summary": "Add project overview page",
     "license": "AGPL-3",
     "data": [
-        "views/project_action.xml",
         "views/project_kanban_view.xml",
-        "views/project_menu.xml",
         "views/project_overview_view.xml",
     ],
     "assets": {

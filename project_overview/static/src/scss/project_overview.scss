@@ -111,11 +111,19 @@
         }
 
         .o_employee_name {
-            width: 15%;
+            width: 25%;
+
+            @media screen and (min-width: 1024px) {
+                width: 15%;
+            }
         }
 
         .o_employee_total {
-            width: 5%;
+            width: 10%;
+
+            @media screen and (min-width: 1024px) {
+                width: 5%;
+            }
         }
 
         .o_employee_progress_container {
