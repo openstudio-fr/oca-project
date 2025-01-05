@@ -11,6 +11,7 @@
         "web",
         "sale_timesheet",
     ],
+    "external_dependencies": {"python": ["polars"]},
     "summary": "Add project overview page",
     "license": "AGPL-3",
     "data": [

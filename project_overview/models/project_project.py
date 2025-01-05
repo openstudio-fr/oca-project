@@ -2,6 +2,8 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+import polars as pl
+
 from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
@@ -24,176 +26,235 @@ class ProjectProject(models.Model):
     @api.depends()
     def _compute_timesheets_field(self):
         for record in self:
-            tasks = record.task_ids
-            analytic_lines = self.env["account.analytic.line"].search_read(
-                [("task_id", "in", tasks.ids)],
-                ["task_id", "date", "unit_amount", "user_id"],
-                load=None,
-            )
-            sale_lines = self.env["sale.order.line"].search_read(
-                [("task_id", "in", tasks.ids)],
-                ["task_id", "product_uom_qty"],
-                load=None,
-            )
-            employees = {
-                emp["user_id"]: emp
-                for emp in self.env["hr.employee"].search_read(
-                    [("user_id", "!=", False)], ["name", "user_id"], load=None
-                )
-            }
+            tasks_ids = record.task_ids.ids
+            tasks = record.task_ids.read(["id", "name"], load=None)
 
-            month_ids, start_months, end_months = self._overview_get_month_dates()
+            analytic_lines = self.env["account.analytic.line"].search_read(
+                [("task_id", "in", tasks_ids)],
+                ["task_id", "date", "unit_amount", "employee_id"],
+                load=None,
+            )
+
+            sale_lines = self.env["sale.order.line"].search_read(
+                [("task_id", "in", tasks_ids)],
+                ["task_id", "name", "product_uom_qty", "order_id"],
+                load=None,
+            )
+
+            sale_orders = self.env["sale.order"].search_read(
+                [("order_line.task_id", "in", tasks_ids)],
+                ["id", "name"],
+                load=None,
+            )
+
+            employees = (
+                self.env["hr.employee"]
+                .with_context(active_test=False)
+                .search_read([], ["id", "name"], load=None)
+            )
+
+            # TODO: manage empty data
+            tasks_df = pl.from_dicts(tasks)
+            analytic_lines_df = pl.from_dicts(analytic_lines)
+            sale_lines_df = pl.from_dicts(sale_lines)
+            sale_orders_df = pl.from_dicts(sale_orders)
+            employees_df = pl.from_dicts(employees)
+
+            global_df = (
+                tasks_df.join(
+                    analytic_lines_df,
+                    left_on="id",
+                    right_on="task_id",
+                    how="left",
+                    suffix="_analytic_line",
+                )
+                .join(
+                    employees_df,
+                    left_on="employee_id",
+                    right_on="id",
+                    how="left",
+                    suffix="_employee",
+                )
+                .join(
+                    sale_lines_df,
+                    left_on="id",
+                    right_on="task_id",
+                    how="left",
+                    suffix="_sale_line",
+                )
+                .join(
+                    sale_orders_df,
+                    left_on="order_id",
+                    right_on="id",
+                    how="left",
+                    suffix="_sale_order",
+                )
+            )
+
+            # rename columns
+            global_df = global_df.rename(
+                {
+                    "id": "task_id",
+                    "name": "task_name",
+                    "id_analytic_line": "analytic_line_id",
+                    "date": "analytic_line_date",
+                    "name_employee": "employee_name",
+                    "id_sale_line": "sale_line_id",
+                    "name_sale_line": "sale_line_name",
+                    "unit_amount": "done",
+                    "product_uom_qty": "sold",
+                    "name_sale_order": "order_name",
+                }
+            )
+
+            # Set "Without order" to order name if no order
+            global_df = global_df.with_columns(
+                pl.col("order_name").replace(None, _("Without order"))
+            )
+
+            # Define periods
+            now = datetime.now().date()
+            start_months = [
+                (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+                for i in range(2, -1, -1)
+            ]
+            month_names = [date.strftime("%b").lower() + "." for date in start_months]
+
+            # Initialize period columns with default values
+            for col in ["before"] + month_names:
+                global_df = global_df.with_columns(pl.lit(0.0).alias(col))
+
+            # Define conditions for each period
+            conditions = [
+                (pl.col("analytic_line_date") < start_months[0], "before"),
+                (
+                    (pl.col("analytic_line_date") >= start_months[0])
+                    & (pl.col("analytic_line_date") < start_months[1]),
+                    month_names[0],
+                ),
+                (
+                    (pl.col("analytic_line_date") >= start_months[1])
+                    & (pl.col("analytic_line_date") < start_months[2]),
+                    month_names[1],
+                ),
+                (pl.col("analytic_line_date") >= start_months[2], month_names[2]),
+            ]
+
+            # Update period columns based on conditions
+            for condition, column in conditions:
+                global_df = global_df.with_columns(
+                    pl.when(condition)
+                    .then(pl.col("done"))
+                    .otherwise(pl.col(column))
+                    .alias(column)
+                )
+
+            """
+            # TODO: It should be possible to do this in one step
+
+            # Add periods columns to the dataframe
+            global_df = global_df.with_columns(
+                pl.when(pl.col("analytic_line_date") < start_months[0])
+                .then("before")
+                .when(
+                    (pl.col("analytic_line_date") >= start_months[0])
+                    & (pl.col("analytic_line_date") < start_months[1])
+                )
+                .then(month_names[0])
+                .when(
+                    (pl.col("analytic_line_date") >= start_months[1])
+                    & (pl.col("analytic_line_date") < start_months[2])
+                )
+                .then(month_names[1])
+                .when(pl.col("analytic_line_date") >= start_months[2])
+                .then(month_names[2])
+            )
+            """
+
+            # By order df
+            by_order_df = global_df.group_by("order_id").agg(
+                pl.first("order_name"),
+                pl.sum("before"),
+                pl.sum(month_names[0]),
+                pl.sum(month_names[1]),
+                pl.sum(month_names[2]),
+                pl.sum("done"),
+                pl.sum("sold"),
+            )
+
+            # Add remaining column
+            by_order_df = by_order_df.with_columns(
+                (pl.col("sold") - pl.col("done")).alias("remaining")
+            ).rename({"order_id": "id", "order_name": "name"})
+
+            # by task df
+            by_task_df = global_df.group_by("task_id").agg(
+                pl.first("task_name"),
+                pl.first("order_id"),
+                pl.first("order_name"),
+                pl.first("sale_line_id"),
+                pl.first("sale_line_name"),
+                pl.sum("before"),
+                pl.sum(month_names[0]),
+                pl.sum(month_names[1]),
+                pl.sum(month_names[2]),
+                pl.sum("done"),
+                pl.sum("sold"),
+            )
+
+            # Add name column, use task_name if no sale_line_name
+            by_task_df = by_task_df.with_columns(
+                pl.when(pl.col("sale_line_name").is_null())
+                .then(pl.col("task_name"))
+                .otherwise(pl.col("sale_line_name"))
+                .alias("name")
+            )
+
+            # Add remaining column
+            by_task_df = by_task_df.with_columns(
+                (pl.col("sold") - pl.col("done")).alias("remaining")
+            )
+
+            # By task and employee df
+            by_task_employee_df = (
+                global_df.group_by("task_id", "employee_id")
+                .agg(
+                    pl.first("employee_name"),
+                    pl.sum("before"),
+                    pl.sum(month_names[0]),
+                    pl.sum(month_names[1]),
+                    pl.sum(month_names[2]),
+                    pl.sum("done"),
+                )
+                .filter(pl.col("done") != 0)
+            ).rename({"employee_name": "name"})
 
             table_columns = [
                 {"id": "name", "name": "Nom"},
                 {"id": "before", "name": "Avant"},
-                *[{"id": month_id, "name": month_id} for month_id in month_ids],
+                *[{"id": month_name, "name": month_name} for month_name in month_names],
                 {"id": "done", "name": "Terminé"},
                 {"id": "sold", "name": "Vendu"},
                 {"id": "remaining", "name": "Restant"},
             ]
 
-            orders = defaultdict(lambda: self._overview_create_empty_order(month_ids))
-            unordered = self._overview_create_empty_order(
-                month_ids, name="Pas de bon de commande"
-            )
+            # generate table content
+            orders = by_order_df.to_dicts()
+            for order in orders:
+                order["sale_lines"] = by_task_df.filter(
+                    pl.col("order_name") == order["name"]
+                ).to_dicts()
+                for sale_line in order["sale_lines"]:
+                    sale_line["employees"] = by_task_employee_df.filter(
+                        (pl.col("task_id") == sale_line["task_id"])
+                    ).to_dicts()
 
-            for task in tasks:
-                task_id = task.id
-                task_name = task.name
-                task_order_id = task.sale_order_id.id if task.sale_order_id else None
-                task_order_name = (
-                    task.sale_order_id.name
-                    if task.sale_order_id
-                    else "Pas de bon de commande"
-                )
-                task_sale_line_id = task.sale_line_id.id if task.sale_line_id else None
+            table_content = orders
 
-                task_hours = [
-                    line for line in analytic_lines if line["task_id"] == task_id
-                ]
-                task_data = self._overview_initialize_task_data(month_ids)
-
-                employee_data = defaultdict(
-                    lambda: self._overview_initialize_task_data(month_ids)
-                )
-
-                _logger.debug(
-                    "Employee data: %s",
-                    "\n".join(str(emp) for emp in employee_data.items()),
-                )
-                _logger.debug(
-                    "Analytic lines: %s",
-                    "\n".join(str(line) for line in analytic_lines),
-                )
-                _logger.debug(
-                    "Task hours: %s", "\n".join(str(line) for line in task_hours)
-                )
-
-                for line in task_hours:
-                    line_date = line["date"]
-                    user_id = line["user_id"]
-
-                    _logger.info("User ID: %s", user_id)
-                    _logger.info("Employee in employees: %s", user_id in employees)
-                    if user_id not in employees:
-                        continue
-
-                    if line_date < start_months[0]:
-                        task_data["before"] += line["unit_amount"]
-                        employee_data[user_id]["before"] += line["unit_amount"]
-                    else:
-                        for idx, (start_date, end_date) in enumerate(
-                            zip(start_months, end_months)
-                        ):
-                            if start_date <= line_date <= end_date:
-                                task_data[month_ids[idx]] += line["unit_amount"]
-                                employee_data[user_id][month_ids[idx]] += line[
-                                    "unit_amount"
-                                ]
-
-                task_data["done"] = sum(line["unit_amount"] for line in task_hours)
-                for user_id in employee_data:
-                    employee_data[user_id]["done"] = sum(
-                        employee_data[user_id][key] for key in month_ids + ["before"]
-                    )
-
-                task_sales = [sale for sale in sale_lines if sale["task_id"] == task_id]
-                task_data["sold"] = sum(sale["product_uom_qty"] for sale in task_sales)
-                for user_id in employee_data:
-                    employee_data[user_id]["sold"] = task_data["sold"]
-
-                task_data["remaining"] = task_data["sold"] - task_data["done"]
-                for user_id in employee_data:
-                    employee_data[user_id]["remaining"] = (
-                        employee_data[user_id]["sold"] - employee_data[user_id]["done"]
-                    )
-
-                task_employees = [
-                    {"name": employees[user_id]["name"], **employee_data[user_id]}
-                    for user_id in employee_data
-                ]
-
-                target_order = orders[task_order_id] if task_order_id else unordered
-                target_order["name"] = task_order_name
-                target_order["id"] = task_order_id
-                target_order["before"] += task_data["before"]
-                for month_id in month_ids:
-                    target_order[month_id] += task_data[month_id]
-                target_order["done"] += task_data["done"]
-                target_order["sold"] += task_data["sold"]
-                target_order["remaining"] += task_data["remaining"]
-
-                target_order["sale_lines"].append(
-                    {
-                        "id": task_sale_line_id,
-                        "name": task_name,
-                        **task_data,
-                        "employees": task_employees,
-                    }
-                )
-
-            result = []
-            for order_id, order_data in orders.items():
-                result.append(order_data)
-            if unordered["sale_lines"]:
-                result.append(unordered)
-
-            record.timesheets_field = {"columns": table_columns, "content": result}
-
-    def _overview_get_month_dates(self):
-        now = datetime.now().date()
-        start_months = [
-            (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
-            for i in range(2, -1, -1)
-        ]
-        end_months = [
-            (start_month + timedelta(days=31)).replace(day=1) - timedelta(days=1)
-            for start_month in start_months
-        ]
-        month_ids = [date.strftime("%b").lower() + "." for date in start_months]
-        return month_ids, start_months, end_months
-
-    def _overview_create_empty_order(self, month_ids, name=""):
-        return {
-            "id": None,
-            "name": name,
-            "before": 0.0,
-            **{month_id: 0.0 for month_id in month_ids},
-            "done": 0.0,
-            "sold": 0.0,
-            "remaining": 0.0,
-            "sale_lines": [],
-        }
-
-    def _overview_initialize_task_data(self, month_ids):
-        return {
-            "before": 0.0,
-            **{month_id: 0.0 for month_id in month_ids},
-            "done": 0.0,
-            "sold": 0.0,
-            "remaining": 0.0,
-        }
+            record.timesheets_field = {
+                "columns": table_columns,
+                "content": table_content,
+            }
 
     # Ouvre la page 'Vue s'ensemble'
     def action_project_overview(self):
