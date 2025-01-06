@@ -4,6 +4,7 @@ import {useService} from "@web/core/utils/hooks";
 import {Dashboard} from "../dashboard/dashboard.js";
 import {GlobalActions} from "../global_actions/global_actions.js";
 import {TimeByPeople} from "../time_by_people/time_by_people.js";
+import {Timesheets} from "../timesheets/timesheets.js";
 
 const {Component, onWillStart, useEffect, useState} = owl;
 
@@ -24,6 +25,8 @@ export class ProjectOverviewComponent extends Component {
             prevDomain: null,
             currency: null,
             invoiceIds: null,
+            timesheetsData: null,
+            columnsId: null,
         });
 
         onWillStart(() => {
@@ -34,6 +37,7 @@ export class ProjectOverviewComponent extends Component {
             this.loadEmployeesData();
             this.loadProfitabilityData();
             this.loadCurrencyData();
+            this.loadTimesheetsData();
         });
 
         useEffect(() => {
@@ -46,6 +50,7 @@ export class ProjectOverviewComponent extends Component {
                 this.loadInvoiceTypeData();
                 this.loadEmployeesData();
                 this.loadProfitabilityData();
+                this.loadTimesheetsData();
                 this.state.prevDomain = currentDomain;
             }
         });
@@ -227,6 +232,31 @@ export class ProjectOverviewComponent extends Component {
         }
     }
 
+    async loadTimesheetsData() {
+        const projectId = this.props.record.context.default_project_id;
+        const domain = this.formatFilters(this.env.searchModel.domain || []);
+        console.log(domain);
+        try {
+            if (!projectId) {
+                this.notification.add("An error has occurred : no projectId", {
+                    type: "danger",
+                });
+            }
+            const action = await this.orm.call(
+                "project.project",
+                "get_overview_timesheets_data",
+                [[projectId], domain]
+            );
+            const timesheetsData = JSON.parse(action);
+            this.state.timesheetsData = timesheetsData;
+            this.state.columnsId = (
+                timesheetsData && timesheetsData.columns ? timesheetsData.columns : []
+            ).map((column) => column.id);
+        } catch (error) {
+            console.error("An error has occurred:", error);
+        }
+    }
+
     // TODO : FILTRE
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
@@ -288,4 +318,5 @@ ProjectOverviewComponent.components = {
     TimeByPeople,
     Dashboard,
     GlobalActions,
+    Timesheets,
 };

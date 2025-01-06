@@ -1,5 +1,5 @@
+import json
 import logging
-from collections import defaultdict
 from datetime import datetime, timedelta
 
 import polars as pl
@@ -16,16 +16,17 @@ class ProjectProject(models.Model):
         "sale.order", string="Sale Orders", compute="_compute_order_ids"
     )
     widget_field = fields.Char(string="Project Overview Widget")
-    timesheets_field = fields.Json(compute="_compute_timesheets_field", store=False)
 
     @api.depends("task_ids")
     def _compute_order_ids(self):
         for project in self:
             project.order_ids = project._fetch_sale_order_items().order_id
 
-    @api.depends()
-    def _compute_timesheets_field(self):
-        for record in self:
+    @api.model
+    def get_overview_timesheets_data(self, project_ids, domain=None):
+        projects = self.env["project.project"].browse(project_ids)
+
+        for record in projects:
             tasks_ids = record.task_ids.ids
             tasks = record.task_ids.read(["id", "name"], load=None)
 
@@ -246,15 +247,17 @@ class ProjectProject(models.Model):
                 ).to_dicts()
                 for sale_line in order["sale_lines"]:
                     sale_line["employees"] = by_task_employee_df.filter(
-                        (pl.col("task_id") == sale_line["task_id"])
+                        pl.col("task_id") == sale_line["task_id"]
                     ).to_dicts()
 
             table_content = orders
 
-            record.timesheets_field = {
-                "columns": table_columns,
-                "content": table_content,
-            }
+            return json.dumps(
+                {
+                    "columns": table_columns,
+                    "content": table_content,
+                }
+            )
 
     # Ouvre la page 'Vue s'ensemble'
     def action_project_overview(self):
@@ -546,5 +549,5 @@ class ProjectProject(models.Model):
         return super()._get_profitability_items_from_aal(
             super()._get_profitability_items(with_action),
             with_action,
-            domains=[("project_id", "in", [8])],
+            # domains=[("project_id", "in", [8])],
         )

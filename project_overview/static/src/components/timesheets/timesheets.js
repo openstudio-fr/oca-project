@@ -1,7 +1,7 @@
 /** @odoo-module **/
 import {useService} from "@web/core/utils/hooks";
 
-const {Component, onWillStart, useState} = owl;
+const {Component} = owl;
 
 export class Timesheets extends Component {
     setup() {
@@ -12,15 +12,18 @@ export class Timesheets extends Component {
         this.notification = useService("notification");
 
         this.openSaleOrder = this.openSaleOrder.bind(this);
+    }
 
-        this.state = useState({
-            timesheetsData: null,
-            columnsId: null,
-        });
+    // --------------------------------------------------------------------------
+    // Getters
+    // --------------------------------------------------------------------------
 
-        onWillStart(() => {
-            this.loadTimesheetsData();
-        });
+    get timesheets() {
+        return this.props.timesheetsData;
+    }
+
+    get columnsId() {
+        return this.props.columnsId;
     }
 
     // --------------------------------------------------------------------------
@@ -39,32 +42,11 @@ export class Timesheets extends Component {
     }
 
     // --------------------------------------------------------------------------
-    // Function for load timesheetsData
-    // --------------------------------------------------------------------------
-
-    async loadTimesheetsData() {
-        const timesheetsData = this.props.record.data.timesheets_field;
-
-        // Todo: ne fonctionne pas car méthode privée
-        // const projectId = this.props.record.projectId
-        // const action = await this.orm.call(
-        //     "project.project",
-        //     `_compute_order_columnsId`,
-        //     [projectId]
-        // );
-
-        this.state.timesheetsData = timesheetsData;
-        this.state.columnsId = (
-            timesheetsData && timesheetsData.columns ? timesheetsData.columns : []
-        ).map((column) => column.id);
-    }
-
-    // --------------------------------------------------------------------------
     // Action for buttons
     // --------------------------------------------------------------------------
 
     async openSaleOrder(id) {
-        const projectId = this.props.record.context.default_project_id;
+        const projectId = this.props.projectId;
         if (projectId && id) {
             try {
                 const action = await this.orm.call(

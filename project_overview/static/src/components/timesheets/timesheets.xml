@@ -3,15 +3,11 @@
   <t t-name="project_overview.Timesheets" owl="1">
     <div class="o_project_overview_timesheets">
       <h3 name="table_plan_title">Timesheets</h3>
-      <t t-if="state.timesheetsData and state.columnsId">
+      <t t-if="timesheets and columnsId">
         <table class="table">
           <thead>
             <tr>
-              <t
-                                t-foreach="state.timesheetsData['columns']"
-                                t-as="colomn"
-                                t-key="colomn.id"
-                            >
+              <t t-foreach="timesheets['columns']" t-as="colomn" t-key="colomn.id">
                 <th>
                   <span>
                     <t t-esc="colomn.name" />
@@ -22,12 +18,12 @@
           </thead>
           <tbody>
             <t
-                            t-foreach="state.timesheetsData['content']"
+                            t-foreach="timesheets['content']"
                             t-as="timesheetsData"
                             t-key="timesheetsData.name"
                         >
               <tr>
-                <t t-foreach="state.columnsId" t-as="field" t-key="field">
+                <t t-foreach="columnsId" t-as="field" t-key="field">
                   <t t-if="field === 'name'">
                     <td style="'padding-left: 0px ;'">
                       <a t-on-click="() => openSaleOrder(timesheetsData.id)">
@@ -49,10 +45,10 @@
                 <t
                                     t-foreach="timesheetsData.sale_lines"
                                     t-as="saleLine"
-                                    t-key='saleLine.name'
+                                    t-key='saleLine.task_id'
                                 >
                   <tr>
-                    <t t-foreach="state.columnsId" t-as="field" t-key="field">
+                    <t t-foreach="columnsId" t-as="field" t-key="field">
                       <t t-if="field === 'name'">
                         <td style="padding-left: 30px ;">
                           <span t-esc="saleLine[field]" />
@@ -72,10 +68,10 @@
                     <t
                                             t-foreach="saleLine.employees"
                                             t-as="employee"
-                                            t-key='employee.name'
+                                            t-key='employee.employee_id'
                                         >
                       <tr>
-                        <t t-foreach="state.columnsId" t-as="field" t-key="field">
+                        <t t-foreach="columnsId" t-as="field" t-key="field">
                           <t t-if="field === 'name'">
                             <td style="padding-left: 60px ;">
                               <span t-esc="employee[field]" />
@@ -84,6 +80,7 @@
                           <t t-else="">
                             <td class="text-center">
                               <span
+                                                                t-if="employee[field] !== undefined"
                                                                 t-esc="convertToHHMM(employee[field])"
                                                                 t-att-class="employee[field] === 0 ?'text-muted' : ''"
                                                             />

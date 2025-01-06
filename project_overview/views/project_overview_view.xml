@@ -18,12 +18,6 @@
                         nolabel="1"
                         style="width:100%"
                     />
-                    <field
-                        name="timesheets_field"
-                        widget="project_timesheets_widget"
-                        nolabel="1"
-                        style="width:100%"
-                    />
                 </sheet>
             </form>
         </field>
