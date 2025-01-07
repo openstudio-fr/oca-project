@@ -235,7 +235,7 @@ export class ProjectOverviewComponent extends Component {
     async loadTimesheetsData() {
         const projectId = this.props.record.context.default_project_id;
         const domain = this.formatFilters(this.env.searchModel.domain || []);
-        console.log(domain);
+        console.log(this.env.searchModel.domain);
         try {
             if (!projectId) {
                 this.notification.add("An error has occurred : no projectId", {
@@ -260,44 +260,14 @@ export class ProjectOverviewComponent extends Component {
     // TODO : FILTRE
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
-
-        // Avec formatFilters qui enlève type et projectId :
-        const filters = this.formatFilters(this.env.searchModel.domain || []);
-        // Filters = [
-        //     "&",
-        //     [
-        //         "date",
-        //         ">=",
-        //         "2024-01-01"
-        //     ],
-        //     "&",
-        //     [
-        //         "date",
-        //         "<=",
-        //         "2025-01-02"
-        //     ],
-        //     "|",
-        //     [
-        //         "order_id",
-        //         "ilike",
-        //         "21"
-        //     ],
-        //     [
-        //         "order_id",
-        //         "ilike",
-        //         "22"
-        //     ]
-        // ]
-
-        // Sans formatFilters :
-        // type project_id sale_order_id date_start date
-        // dans ce cas, possible d'enlever domains=[(l[0], l[1], l[2]) for l in (filters or [])] dans project_project
         if (projectId) {
             try {
-                const data = await this.orm.call("project.project", "get_custom_data", [
-                    [projectId],
-                    filters,
-                ]);
+                const domain = this.formatFilters(this.env.searchModel.domain || []);
+                const data = await this.orm.call(
+                    "project.project",
+                    "get_custom_profitability_items",
+                    [[projectId], domain]
+                );
 
                 this.state.profitabilityData = data;
             } catch (error) {

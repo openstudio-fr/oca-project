@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import polars as pl
 
 from odoo import _, api, fields, models
+from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
 
@@ -520,7 +521,6 @@ class ProjectProject(models.Model):
 
         return action
 
-    # todo: action_create_sale_order
     # Ouvre la popup de création de bon de commande
     def action_create_sale_order(self):
         view_form_id = self.env.ref("sale.view_order_form").id
@@ -536,18 +536,205 @@ class ProjectProject(models.Model):
             },
         }
 
-    def get_custom_data(self, filters=None):
-        self.ensure_one()
-        with_action = False
-        # domains=[(l[0], l[1], l[2]) for l in (filters or [])]
-        # pb meme le domaine en dur n'est pas utilisé dans _get_profitability_items_from_aal de sale_timesheet project.py
-        # malgré domains=None et
-        # domain = self.sudo()._get_profitability_aal_domain()
-        # if domains is None:
-        #     domains = []
-        # domain += domains
-        return super()._get_profitability_items_from_aal(
-            super()._get_profitability_items(with_action),
-            with_action,
-            # domains=[("project_id", "in", [8])],
+    def get_custom_profitability_sequence_per_invoice_type(self):
+        return {
+            **super()._get_profitability_sequence_per_invoice_type(),
+            "billable_fixed": 1,
+            "billable_time": 2,
+            "billable_milestones": 3,
+            "billable_manual": 4,
+            "non_billable": 5,
+            "timesheet_revenues": 6,
+            "other_costs": 12,
+        }
+
+    def _get_custom_profitability_aal_domain(self, extra_domain=None):
+        domain = [
+            "|",
+            ("project_id", "in", self.ids),
+            ("so_line", "in", self._fetch_sale_order_item_ids()),
+        ]
+
+        initial_domain = expression.AND(
+            [
+                super()._get_profitability_aal_domain(),
+                domain,
+            ]
+        )
+
+        if extra_domain:
+            return expression.AND([initial_domain, extra_domain])
+
+        return initial_domain
+
+    def get_profitability_items_from_aal_custom(
+        self, profitability_items, with_action=True, extra_domain=None
+    ):
+        if not self.allow_timesheets:
+            total_invoiced = total_to_invoice = 0.0
+            revenue_data = []
+            for revenue in profitability_items["revenues"]["data"]:
+                if revenue["id"] in [
+                    "billable_fixed",
+                    "billable_time",
+                    "billable_milestones",
+                    "billable_manual",
+                ]:
+                    continue
+                total_invoiced += revenue["invoiced"]
+                total_to_invoice += revenue["to_invoice"]
+                revenue_data.append(revenue)
+            profitability_items["revenues"] = {
+                "data": revenue_data,
+                "total": {"to_invoice": total_to_invoice, "invoiced": total_invoiced},
+            }
+            return profitability_items
+
+        test = self.sudo()._get_custom_profitability_aal_domain(extra_domain)
+
+        aa_line_read_group = (
+            self.env["account.analytic.line"]
+            .sudo()
+            ._read_group(
+                test,
+                [
+                    "timesheet_invoice_type",
+                    "timesheet_invoice_id",
+                    "unit_amount",
+                    "amount",
+                    "ids:array_agg(id)",
+                ],
+                ["timesheet_invoice_type", "timesheet_invoice_id"],
+                lazy=False,
+            )
+        )
+
+        can_see_timesheets = (
+            with_action
+            and len(self) == 1
+            and self.user_has_groups("hr_timesheet.group_hr_timesheet_approver")
+        )
+        revenues_dict = {}
+        costs_dict = {}
+        total_revenues = {"invoiced": 0.0, "to_invoice": 0.0}
+        total_costs = {"billed": 0.0, "to_bill": 0.0}
+        for res in aa_line_read_group:
+            amount = res["amount"]
+            invoice_type = res["timesheet_invoice_type"]
+            cost = costs_dict.setdefault(invoice_type, {"billed": 0.0, "to_bill": 0.0})
+            revenue = revenues_dict.setdefault(
+                invoice_type, {"invoiced": 0.0, "to_invoice": 0.0}
+            )
+            if amount < 0:  # cost
+                cost["billed"] += amount
+                total_costs["billed"] += amount
+            else:  # revenues
+                revenue["invoiced"] += amount
+                total_revenues["invoiced"] += amount
+            if can_see_timesheets and invoice_type not in [
+                "other_costs",
+                "other_revenues",
+            ]:
+                cost.setdefault("record_ids", []).extend(res["ids"])
+                revenue.setdefault("record_ids", []).extend(res["ids"])
+
+        action_name = None
+        if can_see_timesheets:
+            action_name = "action_profitability_items"
+
+        def get_timesheets_action(invoice_type, record_ids):
+            args = [invoice_type, [("id", "in", record_ids)]]
+            if len(record_ids) == 1:
+                args.append(record_ids[0])
+            return {"name": action_name, "type": "object", "args": json.dumps(args)}
+
+        sequence_per_invoice_type = (
+            self.get_custom_profitability_sequence_per_invoice_type()
+        )
+
+        def convert_dict_into_profitability_data(d, cost=True):
+            profitability_data = []
+            key1, key2 = ["to_bill", "billed"] if cost else ["to_invoice", "invoiced"]
+            for invoice_type, vals in d.items():
+                if not vals[key1] and not vals[key2]:
+                    continue
+                record_ids = vals.pop("record_ids", [])
+                data = {
+                    "id": invoice_type,
+                    "sequence": sequence_per_invoice_type[invoice_type],
+                    **vals,
+                }
+                if record_ids:
+                    if (
+                        invoice_type not in ["other_costs", "other_revenues"]
+                        and can_see_timesheets
+                    ):  # action to see the timesheets
+                        action = get_timesheets_action(invoice_type, record_ids)
+                        action["context"] = json.dumps(
+                            {
+                                "search_default_groupby_invoice": 1
+                                if not cost and invoice_type == "billable_time"
+                                else 0
+                            }
+                        )
+                        data["action"] = action
+                profitability_data.append(data)
+            return profitability_data
+
+        def merge_profitability_data(a, b):
+            return {
+                "data": a["data"] + b["data"],
+                "total": {
+                    key: a["total"][key] + b["total"][key]
+                    for key in a["total"].keys()
+                    if key in b["total"]
+                },
+            }
+
+        for revenue in profitability_items["revenues"]["data"]:
+            revenue_id = revenue["id"]
+            aal_revenue = revenues_dict.pop(revenue_id, {})
+            revenue["to_invoice"] += aal_revenue.get("to_invoice", 0.0)
+            revenue["invoiced"] += aal_revenue.get("invoiced", 0.0)
+            record_ids = aal_revenue.get("record_ids", [])
+            if can_see_timesheets and record_ids:
+                action = get_timesheets_action(revenue_id, record_ids)
+                action["context"] = json.dumps(
+                    {
+                        "search_default_groupby_invoice": 1
+                        if revenue_id == "billable_time"
+                        else 0
+                    }
+                )
+                revenue["action"] = action
+
+        for cost in profitability_items["costs"]["data"]:
+            cost_id = cost["id"]
+            aal_cost = costs_dict.pop(cost_id, {})
+            cost["to_bill"] += aal_cost.get("to_bill", 0.0)
+            cost["billed"] += aal_cost.get("billed", 0.0)
+            record_ids = aal_cost.get("record_ids", [])
+            if can_see_timesheets and record_ids:
+                cost["action"] = get_timesheets_action(cost_id, record_ids)
+
+        profitability_items["revenues"] = merge_profitability_data(
+            profitability_items["revenues"],
+            {
+                "data": convert_dict_into_profitability_data(revenues_dict, False),
+                "total": total_revenues,
+            },
+        )
+        profitability_items["costs"] = merge_profitability_data(
+            profitability_items["costs"],
+            {
+                "data": convert_dict_into_profitability_data(costs_dict),
+                "total": total_costs,
+            },
+        )
+        return profitability_items
+
+    def get_custom_profitability_items(self, domain=None, with_action=True):
+        extra_domain = [(l[0], l[1], l[2]) for l in (domain or [])]
+        return self.get_profitability_items_from_aal_custom(
+            super()._get_profitability_items(with_action), with_action, extra_domain
         )
