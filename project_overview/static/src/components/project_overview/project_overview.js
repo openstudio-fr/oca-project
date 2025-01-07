@@ -235,7 +235,6 @@ export class ProjectOverviewComponent extends Component {
     async loadTimesheetsData() {
         const projectId = this.props.record.context.default_project_id;
         const domain = this.formatFilters(this.env.searchModel.domain || []);
-        console.log(this.env.searchModel.domain);
         try {
             if (!projectId) {
                 this.notification.add("An error has occurred : no projectId", {
@@ -253,23 +252,25 @@ export class ProjectOverviewComponent extends Component {
                 timesheetsData && timesheetsData.columns ? timesheetsData.columns : []
             ).map((column) => column.id);
         } catch (error) {
-            console.error("An error has occurred:", error);
+            this.notification.add(
+                "An error has occurred : loadTimesheetsData (if data is empty = polar error (cf.todo)",
+                {
+                    type: "danger",
+                }
+            );
         }
     }
 
-    // TODO : FILTRE
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
         if (projectId) {
             try {
-                const domain = this.formatFilters(this.env.searchModel.domain || []);
                 const data = await this.orm.call(
                     "project.project",
                     "get_custom_profitability_items",
-                    [[projectId], domain]
+                    [projectId]
                 );
-
-                this.state.profitabilityData = data;
+                this.state.profitabilityData = data.profitability_items;
             } catch (error) {
                 this.notification.add("An error has occurred : loadProfitabilityData", {
                     type: "danger",
