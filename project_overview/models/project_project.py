@@ -543,19 +543,4 @@ class ProjectProject(models.Model):
 
     def get_custom_profitability_items(self):
         self.ensure_one()
-        panel_data = {}
-        profitability_items = self._get_profitability_items()
-        if (
-            self._get_profitability_sequence_per_invoice_type()
-            and profitability_items
-            and "revenues" in profitability_items
-            and "costs" in profitability_items
-        ):  # sort the data values
-            profitability_items["revenues"]["data"] = sorted(
-                profitability_items["revenues"]["data"], key=lambda k: k["sequence"]
-            )
-            profitability_items["costs"]["data"] = sorted(
-                profitability_items["costs"]["data"], key=lambda k: k["sequence"]
-            )
-            panel_data["profitability_items"] = profitability_items
-        return panel_data
+        return self._get_profitability_items()

@@ -270,7 +270,7 @@ export class ProjectOverviewComponent extends Component {
                     "get_custom_profitability_items",
                     [projectId]
                 );
-                this.state.profitabilityData = data.profitability_items;
+                this.state.profitabilityData = data;
             } catch (error) {
                 this.notification.add("An error has occurred : loadProfitabilityData", {
                     type: "danger",
