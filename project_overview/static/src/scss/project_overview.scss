@@ -133,29 +133,21 @@
             gap: 5px;
         }
     }
-}
 
-.o_project_overview_timesheets {
-    margin-top: 20px;
+    .o_project_overview_timesheets {
+        th {
+            text-align: center;
+            vertical-align: top;
+        }
 
-    a {
-        cursor: pointer;
-        font-weight: 600;
-        color: #5a4f7f !important;
-    }
+        th:nth-last-child(3),
+        td:nth-last-child(3) {
+            border-right: 2px solid #5a4f7f;
+        }
 
-    th {
-        text-align: center;
-        vertical-align: top;
-    }
-
-    th:nth-last-child(3),
-    td:nth-last-child(3) {
-        border-right: 2px solid #5a4f7f;
-    }
-
-    .text-muted {
-        color: #adb5bd !important;
+        .text-muted {
+            color: #adb5bd !important;
+        }
     }
 }
 

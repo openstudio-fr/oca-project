@@ -4,6 +4,7 @@ import {useService} from "@web/core/utils/hooks";
 import {Dashboard} from "../dashboard/dashboard.js";
 import {GlobalActions} from "../global_actions/global_actions.js";
 import {TimeByPeople} from "../time_by_people/time_by_people.js";
+import {Timesheets} from "../timesheets/timesheets.js";
 
 const {Component, onWillStart, useEffect, useState} = owl;
 
@@ -24,6 +25,8 @@ export class ProjectOverviewComponent extends Component {
             prevDomain: null,
             currency: null,
             invoiceIds: null,
+            timesheetsData: null,
+            columnsId: null,
         });
 
         onWillStart(() => {
@@ -34,6 +37,7 @@ export class ProjectOverviewComponent extends Component {
             this.loadEmployeesData();
             this.loadProfitabilityData();
             this.loadCurrencyData();
+            this.loadTimesheetsData();
         });
 
         useEffect(() => {
@@ -46,6 +50,7 @@ export class ProjectOverviewComponent extends Component {
                 this.loadInvoiceTypeData();
                 this.loadEmployeesData();
                 this.loadProfitabilityData();
+                this.loadTimesheetsData();
                 this.state.prevDomain = currentDomain;
             }
         });
@@ -227,48 +232,44 @@ export class ProjectOverviewComponent extends Component {
         }
     }
 
-    // TODO : FILTRE
+    async loadTimesheetsData() {
+        const projectId = this.props.record.context.default_project_id;
+        const domain = this.formatFilters(this.env.searchModel.domain || []);
+        try {
+            if (!projectId) {
+                this.notification.add("An error has occurred : no projectId", {
+                    type: "danger",
+                });
+            }
+            const action = await this.orm.call(
+                "project.project",
+                "get_overview_timesheets_data",
+                [[projectId], domain]
+            );
+            const timesheetsData = JSON.parse(action);
+            this.state.timesheetsData = timesheetsData;
+            this.state.columnsId = (
+                timesheetsData && timesheetsData.columns ? timesheetsData.columns : []
+            ).map((column) => column.id);
+        } catch (error) {
+            this.notification.add(
+                "An error has occurred : loadTimesheetsData (if data is empty = polar error (cf.todo)",
+                {
+                    type: "danger",
+                }
+            );
+        }
+    }
+
     async loadProfitabilityData() {
         const projectId = this.props.record.context.default_project_id;
-
-        // Avec formatFilters qui enlève type et projectId :
-        const filters = this.formatFilters(this.env.searchModel.domain || []);
-        // Filters = [
-        //     "&",
-        //     [
-        //         "date",
-        //         ">=",
-        //         "2024-01-01"
-        //     ],
-        //     "&",
-        //     [
-        //         "date",
-        //         "<=",
-        //         "2025-01-02"
-        //     ],
-        //     "|",
-        //     [
-        //         "order_id",
-        //         "ilike",
-        //         "21"
-        //     ],
-        //     [
-        //         "order_id",
-        //         "ilike",
-        //         "22"
-        //     ]
-        // ]
-
-        // Sans formatFilters :
-        // type project_id sale_order_id date_start date
-        // dans ce cas, possible d'enlever domains=[(l[0], l[1], l[2]) for l in (filters or [])] dans project_project
         if (projectId) {
             try {
-                const data = await this.orm.call("project.project", "get_custom_data", [
-                    [projectId],
-                    filters,
-                ]);
-
+                const data = await this.orm.call(
+                    "project.project",
+                    "get_custom_profitability_items",
+                    [projectId]
+                );
                 this.state.profitabilityData = data;
             } catch (error) {
                 this.notification.add("An error has occurred : loadProfitabilityData", {
@@ -288,4 +289,5 @@ ProjectOverviewComponent.components = {
     TimeByPeople,
     Dashboard,
     GlobalActions,
+    Timesheets,
 };

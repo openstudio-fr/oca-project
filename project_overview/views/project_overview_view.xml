@@ -18,12 +18,6 @@
                         nolabel="1"
                         style="width:100%"
                     />
-                    <field
-                        name="timesheets_field"
-                        widget="project_timesheets_widget"
-                        nolabel="1"
-                        style="width:100%"
-                    />
                 </sheet>
             </form>
         </field>
@@ -43,11 +37,4 @@
         />
     </record>
 
-    <menuitem
-        id="menu_project_overview"
-        name="Project Overview"
-        parent="project.menu_main_pm"
-        action="action_project_overview"
-        sequence="10"
-    />
 </odoo>

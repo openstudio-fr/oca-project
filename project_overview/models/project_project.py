@@ -1,10 +1,11 @@
+import json
 import logging
-from collections import defaultdict
 from datetime import datetime, timedelta
 
 import polars as pl
 
 from odoo import _, api, fields, models
+from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
 
@@ -16,21 +17,28 @@ class ProjectProject(models.Model):
         "sale.order", string="Sale Orders", compute="_compute_order_ids"
     )
     widget_field = fields.Char(string="Project Overview Widget")
-    timesheets_field = fields.Json(compute="_compute_timesheets_field", store=False)
 
     @api.depends("task_ids")
     def _compute_order_ids(self):
         for project in self:
             project.order_ids = project._fetch_sale_order_items().order_id
 
-    @api.depends()
-    def _compute_timesheets_field(self):
-        for record in self:
+    @api.model
+    def get_overview_timesheets_data(self, project_ids, domain=[]):
+        projects = self.env["project.project"].browse(project_ids)
+
+        # domain format is ['&', ['date', '>=', '2024-12-01'], '&', ['order_id', 'ilike', '25'], '&', ['date', '<=', '2025-01-07'], ['id', '=', 2]]
+        # convert it to real odoo domain
+        if domain:
+            domain = expression.normalize_domain(domain)
+
+        for record in projects:
             tasks_ids = record.task_ids.ids
             tasks = record.task_ids.read(["id", "name"], load=None)
 
+            aal_domain = expression.AND([[("task_id", "in", tasks_ids)], domain])
             analytic_lines = self.env["account.analytic.line"].search_read(
-                [("task_id", "in", tasks_ids)],
+                aal_domain,
                 ["task_id", "date", "unit_amount", "employee_id"],
                 load=None,
             )
@@ -246,15 +254,17 @@ class ProjectProject(models.Model):
                 ).to_dicts()
                 for sale_line in order["sale_lines"]:
                     sale_line["employees"] = by_task_employee_df.filter(
-                        (pl.col("task_id") == sale_line["task_id"])
+                        pl.col("task_id") == sale_line["task_id"]
                     ).to_dicts()
 
             table_content = orders
 
-            record.timesheets_field = {
-                "columns": table_columns,
-                "content": table_content,
-            }
+            return json.dumps(
+                {
+                    "columns": table_columns,
+                    "content": table_content,
+                }
+            )
 
     # Ouvre la page 'Vue s'ensemble'
     def action_project_overview(self):
@@ -468,7 +478,6 @@ class ProjectProject(models.Model):
             action["context"]["default_advance_payment_method"] = "percentage"
         return action
 
-    # todo: optimisé pour faire qu'une requete, si employeeId
     # Ouvre la page 'Fiche de temps' avec un type de temps et un employé
     def action_project_timesheets_with_all_filters(self, employeeId, invoiceType):
         self.ensure_one()
@@ -517,7 +526,6 @@ class ProjectProject(models.Model):
 
         return action
 
-    # todo: action_create_sale_order
     # Ouvre la popup de création de bon de commande
     def action_create_sale_order(self):
         view_form_id = self.env.ref("sale.view_order_form").id
@@ -533,18 +541,6 @@ class ProjectProject(models.Model):
             },
         }
 
-    def get_custom_data(self, filters=None):
+    def get_custom_profitability_items(self):
         self.ensure_one()
-        with_action = False
-        # domains=[(l[0], l[1], l[2]) for l in (filters or [])]
-        # pb meme le domaine en dur n'est pas utilisé dans _get_profitability_items_from_aal de sale_timesheet project.py
-        # malgré domains=None et
-        # domain = self.sudo()._get_profitability_aal_domain()
-        # if domains is None:
-        #     domains = []
-        # domain += domains
-        return super()._get_profitability_items_from_aal(
-            super()._get_profitability_items(with_action),
-            with_action,
-            domains=[("project_id", "in", [8])],
-        )
+        return self._get_profitability_items()

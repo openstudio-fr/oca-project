@@ -19,6 +19,11 @@
                     projectId="state.projectData.id"
                     employeesData='state.employeesData'
                 />
+                <Timesheets
+                    projectId="state.projectData.id"
+                    timesheetsData="state.timesheetsData"
+                    columnsId="state.columnsId"
+                />
             </t>
             <t t-else="">
                 <p>Loading data...</p>
