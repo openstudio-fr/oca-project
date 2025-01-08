@@ -5,7 +5,7 @@
     "category": "web",
     "version": "16.0.1.0.0",
     "website": "https://github.com/OCA/project",
-    "author": "Elise Gigot, Simon Maillard, Odoo Community Association (OCA)",
+    "author": "OpenStudio, Elise Gigot, Simon Maillard, Odoo Community Association (OCA)",
     "depends": [
         "project",
         "web",

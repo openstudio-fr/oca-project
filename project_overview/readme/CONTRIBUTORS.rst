@@ -1,2 +1,2 @@
 * Elise Gigot <egigot@openstudio.fr>
-* Simon Maillard
+* Simon Maillard <simon@ogesta.fr>
