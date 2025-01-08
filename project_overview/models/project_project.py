@@ -29,8 +29,7 @@ class ProjectProject(models.Model):
 
         # domain format is ['&', ['date', '>=', '2024-12-01'], '&', ['order_id', 'ilike', '25'], '&', ['date', '<=', '2025-01-07'], ['id', '=', 2]]
         # convert it to real odoo domain
-        if domain:
-            domain = expression.normalize_domain(domain)
+        domain = expression.normalize_domain(domain) if domain else []
 
         for record in projects:
             tasks_ids = record.task_ids.ids
@@ -61,7 +60,32 @@ class ProjectProject(models.Model):
                 .search_read([], ["id", "name"], load=None)
             )
 
-            # TODO: manage empty data
+            # Define periods
+            now = datetime.now().date()
+            start_months = [
+                (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+                for i in range(2, -1, -1)
+            ]
+            month_names = [date.strftime("%b").lower() + "." for date in start_months]
+
+            table_columns = [
+                {"id": "name", "name": "Nom"},
+                {"id": "before", "name": "Avant"},
+                *[{"id": month_name, "name": month_name} for month_name in month_names],
+                {"id": "done", "name": "Terminé"},
+                {"id": "sold", "name": "Vendu"},
+                {"id": "remaining", "name": "Restant"},
+            ]
+
+            # If no tasks or no analytic lines, return empty data
+            if not tasks or not analytic_lines:
+                return json.dumps(
+                    {
+                        "columns": table_columns,
+                        "content": [],
+                    }
+                )
+
             tasks_df = pl.from_dicts(tasks)
             analytic_lines_df = pl.from_dicts(analytic_lines)
             sale_lines_df = pl.from_dicts(sale_lines)
@@ -119,14 +143,6 @@ class ProjectProject(models.Model):
             global_df = global_df.with_columns(
                 pl.col("order_name").replace(None, _("Without order"))
             )
-
-            # Define periods
-            now = datetime.now().date()
-            start_months = [
-                (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
-                for i in range(2, -1, -1)
-            ]
-            month_names = [date.strftime("%b").lower() + "." for date in start_months]
 
             # Initialize period columns with default values
             for col in ["before"] + month_names:
@@ -236,15 +252,6 @@ class ProjectProject(models.Model):
                 )
                 .filter(pl.col("done") != 0)
             ).rename({"employee_name": "name"})
-
-            table_columns = [
-                {"id": "name", "name": "Nom"},
-                {"id": "before", "name": "Avant"},
-                *[{"id": month_name, "name": month_name} for month_name in month_names],
-                {"id": "done", "name": "Terminé"},
-                {"id": "sold", "name": "Vendu"},
-                {"id": "remaining", "name": "Restant"},
-            ]
 
             # generate table content
             orders = by_order_df.to_dicts()
