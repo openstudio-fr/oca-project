@@ -7,8 +7,6 @@ import polars as pl
 from odoo import _, api, fields, models
 from odoo.osv import expression
 
-_logger = logging.getLogger(__name__)
-
 
 class ProjectProject(models.Model):
     _inherit = "project.project"
