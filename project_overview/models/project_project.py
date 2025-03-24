@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 import polars as pl
 
+_logger = logging.getLogger(__name__)
+
 from odoo import _, api, fields, models
 from odoo.osv import expression
 
@@ -36,13 +38,13 @@ class ProjectProject(models.Model):
             aal_domain = expression.AND([[("task_id", "in", tasks_ids)], domain])
             analytic_lines = self.env["account.analytic.line"].search_read(
                 aal_domain,
-                ["task_id", "date", "unit_amount", "employee_id"],
+                ["id", "task_id", "date", "unit_amount", "employee_id"],
                 load=None,
             )
 
             sale_lines = self.env["sale.order.line"].search_read(
                 [("task_id", "in", tasks_ids)],
-                ["task_id", "name", "product_uom_qty", "order_id"],
+                ["id", "task_id", "name", "product_uom_qty", "order_id"],
                 load=None,
             )
 
@@ -86,9 +88,38 @@ class ProjectProject(models.Model):
 
             tasks_df = pl.from_dicts(tasks)
             analytic_lines_df = pl.from_dicts(analytic_lines)
-            sale_lines_df = pl.from_dicts(sale_lines)
-            sale_orders_df = pl.from_dicts(sale_orders)
             employees_df = pl.from_dicts(employees)
+
+            if sale_lines:
+                sale_lines_df = pl.from_dicts(sale_lines)
+            else:
+                sale_lines_df = pl.DataFrame(
+                    data=[],
+                    schema={
+                        "id": pl.Int64,
+                        "task_id": pl.Int64,
+                        "name": pl.Utf8,
+                        "product_uom_qty": pl.Float64,
+                        "order_id": pl.Int64,
+                    },
+                )
+
+            if sale_orders:
+                sale_orders_df = pl.from_dicts(sale_orders)
+            else:
+                sale_orders_df = pl.DataFrame(
+                    data=[], schema={"id": pl.Int64, "name": pl.Utf8}
+                )
+
+            _logger.debug("Dataframes Schemas:")
+            for df in [
+                tasks_df,
+                analytic_lines_df,
+                employees_df,
+                sale_lines_df,
+                sale_orders_df,
+            ]:
+                _logger.debug(df.schema)
 
             global_df = (
                 tasks_df.join(

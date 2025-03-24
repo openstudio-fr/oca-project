@@ -51,6 +51,7 @@ Credits
 Authors
 ~~~~~~~
 
+* OpenStudio
 * Elise Gigot
 * Simon Maillard
 
@@ -58,7 +59,7 @@ Contributors
 ~~~~~~~~~~~~
 
 * Elise Gigot <egigot@openstudio.fr>
-* Simon Maillard
+* Simon Maillard <simon@ogesta.fr>
 
 Maintainers
 ~~~~~~~~~~~

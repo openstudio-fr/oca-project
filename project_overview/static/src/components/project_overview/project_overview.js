@@ -167,9 +167,16 @@ export class ProjectOverviewComponent extends Component {
                 const data = await this.orm.call("account.analytic.line", "read", [
                     projectId,
                 ]);
-                this.state.currency = data[0].currency_id[1];
+
+                if (data && data.length > 0 && data[0].currency_id) {
+                    this.state.currency = data[0].currency_id[1];
+                } else {
+                    console.warn("No currency data found for the given project ID.");
+                    this.state.currency = null;
+                }
             } catch (error) {
-                this.notification.add("An error has occurred : loadCurrencyData", {
+                console.error(error);
+                this.notification.add("An error has occurred in loadCurrencyData", {
                     type: "danger",
                 });
             }
