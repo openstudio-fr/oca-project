@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 
 import polars as pl
 
-_logger = logging.getLogger(__name__)
-
 from odoo import _, api, fields, models
 from odoo.osv import expression
+
+_logger = logging.getLogger(__name__)
 
 
 class ProjectProject(models.Model):
@@ -24,10 +24,13 @@ class ProjectProject(models.Model):
             project.order_ids = project._fetch_sale_order_items().order_id
 
     @api.model
-    def get_overview_timesheets_data(self, project_ids, domain=[]):
+    def get_overview_timesheets_data(self, project_ids, domain=None):
         projects = self.env["project.project"].browse(project_ids)
 
-        # domain format is ['&', ['date', '>=', '2024-12-01'], '&', ['order_id', 'ilike', '25'], '&', ['date', '<=', '2025-01-07'], ['id', '=', 2]]
+        # domain format is ['&', ['date', '>=', '2024-12-01'], '&',
+        # ['order_id', 'ilike', '25'], '&',
+        # ['date', '<=', '2025-01-07'], ['id', '=', 2]]
+
         # convert it to real odoo domain
         domain = expression.normalize_domain(domain) if domain else []
 
@@ -202,27 +205,24 @@ class ProjectProject(models.Model):
                     .alias(column)
                 )
 
-            """
-            # TODO: It should be possible to do this in one step
-
-            # Add periods columns to the dataframe
-            global_df = global_df.with_columns(
-                pl.when(pl.col("analytic_line_date") < start_months[0])
-                .then("before")
-                .when(
-                    (pl.col("analytic_line_date") >= start_months[0])
-                    & (pl.col("analytic_line_date") < start_months[1])
-                )
-                .then(month_names[0])
-                .when(
-                    (pl.col("analytic_line_date") >= start_months[1])
-                    & (pl.col("analytic_line_date") < start_months[2])
-                )
-                .then(month_names[1])
-                .when(pl.col("analytic_line_date") >= start_months[2])
-                .then(month_names[2])
-            )
-            """
+            # TODO: It should be possible to do this in one step
+            # # Add periods columns to the dataframe
+            # global_df = global_df.with_columns(
+            #     pl.when(pl.col("analytic_line_date") < start_months[0])
+            #     .then("before")
+            #     .when(
+            #         (pl.col("analytic_line_date") >= start_months[0])
+            #         & (pl.col("analytic_line_date") < start_months[1])
+            #     )
+            #     .then(month_names[0])
+            #     .when(
+            #         (pl.col("analytic_line_date") >= start_months[1])
+            #         & (pl.col("analytic_line_date") < start_months[2])
+            #     )
+            #     .then(month_names[1])
+            #     .when(pl.col("analytic_line_date") >= start_months[2])
+            #     .then(month_names[2])
+            # )
 
             # By order df
             by_order_df = global_df.group_by("order_id").agg(
@@ -484,14 +484,14 @@ class ProjectProject(models.Model):
         return action
 
     # Ouvre la page d'un devis
-    def action_view_one_sale_order(self, id):
+    def action_view_one_sale_order(self, order_id):
         self.ensure_one()
         action_window = {
             "type": "ir.actions.act_window",
             "res_model": "sale.order",
             "name": _("%(name)s's Sales Order", name=self.name),
             "context": {"create": False, "show_sale": True},
-            "res_id": id,
+            "res_id": order_id,
             "views": [[False, "form"]],
         }
         return action_window
